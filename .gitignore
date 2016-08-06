@@ -4,6 +4,7 @@
 .installed.cfg
 bin/
 build/
+develop/
 develop-eggs/
 dist/
 eggs/
