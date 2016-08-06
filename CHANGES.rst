@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.0 (unreleased)
+3.0 (2016-08-06)
 ----------------
 
 - Create a separate distribution called `ZServer` without any code
