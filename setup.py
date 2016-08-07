@@ -59,4 +59,13 @@ setup(
     ],
     include_package_data=True,
     zip_safe=False,
+    entry_points={
+        'console_scripts': [
+            ('mkzopeinstance='
+                'ZServer.Zope2.utilities.mkzopeinstance:main'),
+            'runzope=ZServer.Zope2.Startup.run:run',
+            'zopectl=ZServer.Zope2.Startup.zopectl:run',
+            'zpasswd=ZServer.Zope2.utilities.zpasswd:main',
+        ],
+    },
 )
