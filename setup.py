@@ -44,6 +44,7 @@ setup(
         'ExtensionClass',
         'Persistence',
         'transaction',
+        'zdaemon',
         'zExceptions',
         'ZODB',
         'zope.component',
