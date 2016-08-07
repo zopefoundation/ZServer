@@ -29,8 +29,8 @@ from ZConfig.components.logger.tests.test_logger import LoggingTestHelper
 
 from App.config import getConfiguration, setConfiguration
 import Products
-from Zope2.Startup import get_starter
-from Zope2.Startup.options import ZopeOptions
+from ZServer.Zope2.Startup import get_starter
+from ZServer.Zope2.Startup.options import ZopeOptions
 
 TEMPNAME = tempfile.mktemp()
 TEMPPRODUCTS = os.path.join(TEMPNAME, "Products")
@@ -77,7 +77,7 @@ class BaseTestCase(LoggingTestHelper):
         del loghandler._reopenable_handlers[:]
 
     def get_starter(self, conf):
-        starter = get_starter(wsgi=False)
+        starter = get_starter()
         starter.setConfiguration(conf)
         return starter
 

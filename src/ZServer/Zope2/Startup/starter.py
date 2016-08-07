@@ -296,8 +296,8 @@ class ZopeStarter(object):
 
     def startZope(self):
         # Import Zope
-        import Zope2
-        Zope2.startup()
+        import ZServer.Zope2
+        ZServer.Zope2.startup()
 
     # XXX does anyone actually use these three?
 

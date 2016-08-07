@@ -22,8 +22,8 @@ import unittest
 import ZConfig
 
 import Products
-from Zope2.Startup import datatypes
-from Zope2.Startup.options import ZopeOptions
+from ZServer.Zope2.Startup import datatypes
+from ZServer.Zope2.Startup.options import ZopeOptions
 
 _SCHEMA = {}
 TEMPNAME = tempfile.mktemp()
@@ -86,7 +86,7 @@ class ZServerStartupTestCase(unittest.TestCase):
 
     def test_ms_public_header(self):
         from ZServer.Zope2.Startup import config
-        from Zope2.Startup.handlers import handleConfig
+        from ZServer.Zope2.Startup.handlers import handleConfig
 
         default_setting = config.ZSERVER_ENABLE_MS_PUBLIC_HEADER
         try:

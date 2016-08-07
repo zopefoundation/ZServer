@@ -84,7 +84,8 @@ def get_http_header_max_length():
     except ImportError:
         pass
     else:
-        max_length = getConfiguration().http_header_max_length
+        max_length = getattr(
+            getConfiguration(), 'http_header_max_length', max_length)
     return max_length
 
 

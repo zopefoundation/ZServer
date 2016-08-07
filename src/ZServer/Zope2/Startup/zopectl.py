@@ -47,7 +47,7 @@ import zdaemon
 from zdaemon.zdctl import ZDCmd, ZDCtlOptions
 from ZConfig.components.logger.handlers import FileHandlerFactory
 
-from Zope2.Startup.options import ZopeOptions
+from ZServer.Zope2.Startup.options import ZopeOptions
 
 if sys.version_info > (3, 0):
     basestring = str
