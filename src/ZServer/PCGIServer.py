@@ -27,22 +27,23 @@ environment and headers completely.
 
 Note that ZServer can operate multiple PCGI servers.
 """
+from __future__ import absolute_import
 
-from medusa import logger
+from ZServer.medusa import logger
 import asynchat, asyncore
-from medusa.counter import counter
-from medusa.http_server import compute_timezone_for_log
+from ZServer.medusa.counter import counter
+from ZServer.medusa.http_server import compute_timezone_for_log
 from asyncore import compact_traceback
 
 import ZServer
 from ZServer import requestCloseOnExec
 
-from PubCore import handle
-from PubCore.ZEvent import Wakeup
+from ZServer.PubCore import handle
+from ZServer.PubCore.ZEvent import Wakeup
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.HTTPRequest import HTTPRequest
-from Producers import ShutdownProducer, LoggingProducer, CallbackProducer
-import DebugLogger
+from ZServer.Producers import ShutdownProducer, LoggingProducer, CallbackProducer
+from ZServer import DebugLogger
 
 from Zope2.Startup import config
 
@@ -328,8 +329,8 @@ class PCGIServer(asyncore.dispatcher):
         self.channel_class(self, conn, addr)
 
     def readable(self):
-        from ZServer import CONNECTION_LIMIT
-        return len(asyncore.socket_map) < CONNECTION_LIMIT
+        from Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
+        return len(asyncore.socket_map) < ZSERVER_CONNECTION_LIMIT
 
     def writable (self):
         return 0

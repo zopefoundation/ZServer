@@ -31,6 +31,8 @@ changes from Medusa's http_server
     as requests are received.
 
 """
+from __future__ import absolute_import
+
 import sys
 import re
 import os
@@ -40,24 +42,24 @@ import time
 import socket
 from cStringIO import StringIO
 
-from PubCore import handle
-from HTTPResponse import make_response
+from ZServer.PubCore import handle
+from ZServer.HTTPResponse import make_response
 from ZPublisher.HTTPRequest import HTTPRequest
 
 import asyncore
 import asynchat
 
-from medusa.http_server import http_server, get_header
-from medusa.http_server import fifo, http_channel, VERSION_STRING
-from medusa import counter, producers
-from medusa.test import  max_sockets
-from medusa.default_handler import unquote
+from ZServer.medusa.http_server import http_server, get_header
+from ZServer.medusa.http_server import fifo, http_channel, VERSION_STRING
+from ZServer.medusa import counter, producers
+from ZServer.medusa.test import  max_sockets
+from ZServer.medusa.default_handler import unquote
 from asyncore import compact_traceback, dispatcher
 
 from ZServer import ZOPE_VERSION, ZSERVER_VERSION
 from ZServer import requestCloseOnExec
-import DebugLogger
-from medusa import logger
+from ZServer import DebugLogger
+from ZServer.medusa import logger
 
 
 CONTENT_LENGTH  = re.compile('Content-Length: ([0-9]+)',re.I)
@@ -294,7 +296,7 @@ class zhttp_handler:
             </ul>""" %(self.module_name, self.hits)
             )
 
-from HTTPResponse import ChannelPipe
+from ZServer.HTTPResponse import ChannelPipe
 
 class zwsgi_handler(zhttp_handler):
     
@@ -488,9 +490,9 @@ class zhttp_server(http_server):
         requestCloseOnExec(self.socket)
 
     def readable(self):
-        from ZServer import CONNECTION_LIMIT
+        from Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
         return self.accepting and \
-               len(asyncore.socket_map) < CONNECTION_LIMIT
+               len(asyncore.socket_map) < ZSERVER_CONNECTION_LIMIT
 
     def listen(self, num):
         # override asyncore limits for nt's listen queue size
