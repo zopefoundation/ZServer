@@ -25,7 +25,7 @@ import ZConfig
 from ZConfig.components.logger import loghandler
 from zope.event import notify
 from zope.processlifetime import ProcessStarting
-import Zope2.Startup.config
+import ZServer.Zope2.Startup.config
 
 try:
     IO_ERRORS = (IOError, OSError, WindowsError)
@@ -92,7 +92,7 @@ class ZopeStarter(object):
             config = getConfiguration()  # NOQA
             import Lifetime
             Lifetime.loop()
-            from Zope2.Startup.config import ZSERVER_EXIT_CODE
+            from ZServer.Zope2.Startup.config import ZSERVER_EXIT_CODE
             sys.exit(ZSERVER_EXIT_CODE)
         finally:
             self.shutdown()
@@ -197,7 +197,7 @@ class ZopeStarter(object):
             for name in self.cfg.trusted_proxies:
                 mapped.extend(_name_to_ips(name))
             ZPublisher.HTTPRequest.trusted_proxies = tuple(mapped)
-            Zope2.Startup.config.TRUSTED_PROXIES = tuple(mapped)
+            ZServer.Zope2.Startup.config.TRUSTED_PROXIES = tuple(mapped)
 
     def setupSecurityOptions(self):
         import AccessControl
@@ -210,8 +210,9 @@ class ZopeStarter(object):
 
     def setupZServer(self):
         # Increase the number of threads
-        Zope2.Startup.config.setNumberOfThreads(self.cfg.zserver_threads)
-        Zope2.Startup.config.ZSERVER_CONNECTION_LIMIT = \
+        ZServer.Zope2.Startup.config.setNumberOfThreads(
+            self.cfg.zserver_threads)
+        ZServer.Zope2.Startup.config.ZSERVER_CONNECTION_LIMIT = \
             self.cfg.max_listen_sockets
 
     def serverListen(self):

@@ -45,7 +45,7 @@ from ZPublisher.HTTPRequest import HTTPRequest
 from ZServer.Producers import ShutdownProducer, LoggingProducer, CallbackProducer
 from ZServer import DebugLogger
 
-from Zope2.Startup import config
+from ZServer.Zope2.Startup import config
 
 from cStringIO import StringIO
 from tempfile import TemporaryFile
@@ -329,7 +329,7 @@ class PCGIServer(asyncore.dispatcher):
         self.channel_class(self, conn, addr)
 
     def readable(self):
-        from Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
+        from ZServer.Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
         return len(asyncore.socket_map) < ZSERVER_CONNECTION_LIMIT
 
     def writable (self):

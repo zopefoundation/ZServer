@@ -90,7 +90,7 @@ def get_http_header_max_length():
 
 class zhttp_collector:
     def __init__(self, handler, request, size):
-        from Zope2.Startup.config import ZSERVER_LARGE_FILE_THRESHOLD
+        from ZServer.Zope2.Startup.config import ZSERVER_LARGE_FILE_THRESHOLD
         self.handler = handler
         self.request = request
         if size > ZSERVER_LARGE_FILE_THRESHOLD:
@@ -490,7 +490,7 @@ class zhttp_server(http_server):
         requestCloseOnExec(self.socket)
 
     def readable(self):
-        from Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
+        from ZServer.Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
         return self.accepting and \
                len(asyncore.socket_map) < ZSERVER_CONNECTION_LIMIT
 

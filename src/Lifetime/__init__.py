@@ -36,7 +36,7 @@ def shutdown(exit_code, fast=0):
     global _shutdown_timeout
     if _shutdown_phase == 0:
         # Thread safety? proably no need to care
-        from Zope2.Startup import config
+        from ZServer.Zope2.Startup import config
         config.ZSERVER_EXIT_CODE = exit_code
         _shutdown_phase = 1
     if fast:

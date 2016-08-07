@@ -297,7 +297,7 @@ class ZopeStarterTestCase(BaseTestCase, unittest.TestCase):
            zserver-threads 10""")
         starter = self.get_starter(conf)
         starter.setupZServer()
-        from Zope2.Startup.config import ZSERVER_THREADS
+        from ZServer.Zope2.Startup.config import ZSERVER_THREADS
         self.assertEqual(ZSERVER_THREADS, 10)
 
     def testSetupServers(self):

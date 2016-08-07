@@ -12,6 +12,8 @@
 #
 ##############################################################################
 
+from __future__ import absolute_import
+
 import os
 import cStringIO
 import tempfile
@@ -83,7 +85,7 @@ class ZServerStartupTestCase(unittest.TestCase):
             items, [("ANOTHER", "value2"), ("HEADER", "value")])
 
     def test_ms_public_header(self):
-        from Zope2.Startup import config
+        from ZServer.Zope2.Startup import config
         from Zope2.Startup.handlers import handleConfig
 
         default_setting = config.ZSERVER_ENABLE_MS_PUBLIC_HEADER

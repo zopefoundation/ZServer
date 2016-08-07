@@ -49,11 +49,12 @@ deprecated(
     PCGIServer='ZServer.PCGIServer:PCGIServer')
 
 deprecated(
-    'Please import from Zope2.Startup.config.',
-    CONNECTION_LIMIT='Zope2.Startup.config:ZSERVER_CONNECTION_LIMIT',
-    exit_code='Zope2.Startup.config:ZSERVER_EXIT_CODE',
-    LARGE_FILE_THRESHOLD='Zope2.Startup.config:ZSERVER_LARGE_FILE_THRESHOLD',
-    setNumberOfThreads='Zope2.Startup.config:setNumberOfThreads',
+    'Please import from ZServer.Zope2.Startup.config.',
+    CONNECTION_LIMIT='ZServer.Zope2.Startup.config:ZSERVER_CONNECTION_LIMIT',
+    exit_code='ZServer.Zope2.Startup.config:ZSERVER_EXIT_CODE',
+    LARGE_FILE_THRESHOLD=('ZServer.Zope2.Startup.config:'
+                          'ZSERVER_LARGE_FILE_THRESHOLD'),
+    setNumberOfThreads='ZServer.Zope2.Startup.config:setNumberOfThreads',
 )
 
 # the ZServer version number
