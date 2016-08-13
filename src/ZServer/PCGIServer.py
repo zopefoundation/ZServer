@@ -406,5 +406,6 @@ class PCGIPipe:
 
     def finish(self, response):
         if response._shutdownRequested():
+            config.ZSERVER_EXIT_CODE = response._shutdown_flag
             self._shutdown = 1
         self._channel.reply_code=response.status

@@ -38,6 +38,8 @@ from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.HTTPRequest import HTTPRequest
 from Producers import ShutdownProducer, LoggingProducer, file_part_producer, file_close_producer
 
+from ZServer.Zope2.Startup import config
+
 import DebugLogger
 
 from cStringIO import StringIO
@@ -742,6 +744,7 @@ class FCGIResponse(HTTPResponse):
                                                             self.stdout.length,
                                                             'log_request'), 0)
         if self._shutdownRequested():
+            config.ZSERVER_EXIT_CODE = self._shutdown_flag
             self.channel.push(ShutdownProducer(), 0)
             Wakeup(lambda: asyncore.close_all())
         else:

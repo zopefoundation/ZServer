@@ -41,6 +41,7 @@ from ZServer.Producers import file_part_producer
 from ZServer.Producers import file_close_producer
 from ZServer.Producers import iterator_producer
 from ZServer.DebugLogger import log
+from ZServer.Zope2.Startup import config
 
 
 class ZServerHTTPResponse(HTTPResponse):
@@ -319,6 +320,7 @@ class ChannelPipe:
 
     def finish(self, response):
         if response._shutdownRequested():
+            config.ZSERVER_EXIT_CODE = response._shutdown_flag
             self._shutdown = 1
         if response.headers.get('connection','') == 'close' or \
                 response.headers.get('Connection','') == 'close':
