@@ -17,10 +17,7 @@ import re
 import sys
 from socket import gethostbyaddr
 
-try:
-    from ZServer.Zope2.Startup import config
-except ImportError:
-    config = None
+from ZServer.Zope2.Startup import config
 
 
 def _setenv(name, value):
