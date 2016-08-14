@@ -27,7 +27,7 @@ FTP Service for Zope.
 FTP Protocol
 
   The FTP protocol for Zope gives Zope objects a way to make themselves
-  available to FTP services. See the 'lib/python/OFS/FTPInterface.py' for
+  available to FTP services. See the 'webdav.interfaces.IFTPAccess' for
   more details.
 
 FTP Permissions

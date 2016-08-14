@@ -109,8 +109,8 @@ ZServer FTP support
     stores some state such as the current working directory and the
     username and password.
 
-    On the Zope side of things, the 'lib/python/OFS/FTPInterface.py'
-    module defines the Zope FTP interface, for listing sub-items,
+    On the Zope side of things, the 'webdav.interfaces.IFTPAccess'
+    interface defines the Zope FTP interface, for listing sub-items,
     stating, and getting content. The interface is implemented in
     'SimpleItem', and in other Zope classes. Programmers will not
     need to implement the entire interface if they inherit from
