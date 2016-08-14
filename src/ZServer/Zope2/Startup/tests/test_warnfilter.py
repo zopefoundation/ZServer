@@ -71,26 +71,6 @@ class TestWarnFilter(unittest.TestCase):
         self.assertEqual(conf.instancehome, TEMPNAME)
         return conf, handler
 
-    if sys.version_info < (2, 7):
-        def test_behavior(self):
-            conf, handler = self.load_config_text("""\
-                instancehome <<INSTANCE_HOME>>
-                <warnfilter>
-                   action error
-                   message .*test.*
-                   category ZServer.Zope2.Startup.tests.test_warnfilter.TestSchemaWarning
-                   module .*test_warnfilter.*
-                   lineno 0
-                </warnfilter>
-                <warnfilter>
-                   action error
-                   message .*test.*
-                </warnfilter>
-                """)
-            self.assertEqual(len(conf.warnfilters), 2)
-            self.assertRaises(TestSchemaWarning, self._dowarning1)
-            self.assertRaises(UserWarning, self._dowarning2)
-
     def _dowarning1(self):
         warnings.warn('This is only a test.', TestSchemaWarning)
 

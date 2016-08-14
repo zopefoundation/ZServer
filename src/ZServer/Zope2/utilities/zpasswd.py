@@ -50,7 +50,7 @@ try:
 except ImportError:
     crypt = None
 
-if sys.version_info > (3, 0):
+if sys.version_info > (3, ):
     raw_input = input
 
 PROGRAM = sys.argv[0]
