@@ -14,13 +14,13 @@
 
 import os
 import cStringIO
-import sys
 import tempfile
 import unittest
 import warnings
 
 import ZConfig
 import ZServer.Zope2.Startup
+from ZServer.Zope2.Startup.options import ZopeOptions
 import Products
 
 TEMPNAME = tempfile.mktemp()
@@ -31,7 +31,10 @@ def getSchema():
     startup = os.path.dirname(
         os.path.realpath(ZServer.Zope2.Startup.__file__))
     schemafile = os.path.join(startup, 'zopeschema.xml')
-    return ZConfig.loadSchema(schemafile)
+    opts = ZopeOptions()
+    opts.schemafile = schemafile
+    opts.load_schema()
+    return opts.schema
 
 
 class TestSchemaWarning(Warning):

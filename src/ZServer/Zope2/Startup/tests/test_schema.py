@@ -36,7 +36,7 @@ def getSchema(schemafile):
     return _SCHEMA[schemafile]
 
 
-class WSGIStartupTestCase(unittest.TestCase):
+class StartupTestCase(unittest.TestCase):
 
     @property
     def schema(self):
