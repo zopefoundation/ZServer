@@ -15,6 +15,7 @@ from ZPublisher.BeforeTraverse import registerBeforeTraverse
 from ZPublisher.BeforeTraverse import unregisterBeforeTraverse
 from ZPublisher.BaseRequest import quote
 from zExceptions import BadRequest
+from zExceptions import Redirect
 
 
 class VirtualHostMonster(Persistent, Item, Implicit):
@@ -107,7 +108,7 @@ class VirtualHostMonster(Persistent, Item, Implicit):
         self.lines = tuple(new_lines)
         self.have_map = bool(fixed_map or sub_map)  # booleanize
         if RESPONSE is not None:
-            RESPONSE.redirect(
+            raise Redirect(
                 'manage_edit?manage_tabs_message=Changes%20Saved.')
 
     def addToContainer(self, container):
@@ -259,7 +260,7 @@ def manage_addVirtualHostMonster(self, id=None, REQUEST=None, **ignored):
     if REQUEST is not None:
         goto = '%s/manage_main' % self.absolute_url()
         qs = 'manage_tabs_message=Virtual+Host+Monster+added.'
-        REQUEST['RESPONSE'].redirect('%s?%s' % (goto, qs))
+        raise Redirect('%s?%s' % (goto, qs))
 
 constructors = (
     ('manage_addVirtualHostMonster', manage_addVirtualHostMonster),
