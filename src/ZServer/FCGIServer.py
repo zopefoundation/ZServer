@@ -24,23 +24,24 @@ protocol specificaition.
 """
 
 #----------------------------------------------------------------------
+from __future__ import absolute_import
 
 import asynchat, asyncore
-from medusa import logger
-from medusa.counter import counter
-from medusa.http_server import compute_timezone_for_log
+from ZServer.medusa import logger
+from ZServer.medusa.counter import counter
+from ZServer.medusa.http_server import compute_timezone_for_log
 
 from ZServer import requestCloseOnExec
 
-from PubCore import handle
-from PubCore.ZEvent import Wakeup
+from ZServer.PubCore import handle
+from ZServer.PubCore.ZEvent import Wakeup
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.HTTPRequest import HTTPRequest
-from Producers import ShutdownProducer, LoggingProducer, file_part_producer, file_close_producer
+from ZServer.Producers import ShutdownProducer, LoggingProducer, file_part_producer, file_close_producer
 
 from ZServer.Zope2.Startup import config
 
-import DebugLogger
+from ZServer import DebugLogger
 
 from cStringIO import StringIO
 from tempfile import TemporaryFile

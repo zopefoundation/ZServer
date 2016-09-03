@@ -64,13 +64,13 @@ FTP Authorization
 
 """
 
-from PubCore import handle
-from medusa.ftp_server import ftp_channel, ftp_server, recv_channel
+from ZServer.PubCore import handle
+from ZServer.medusa.ftp_server import ftp_channel, ftp_server, recv_channel
 import asyncore, asynchat
-from medusa import filesys
+from ZServer.medusa import filesys
 
-from FTPResponse import make_response
-from FTPRequest import FTPRequest
+from ZServer.FTPResponse import make_response
+from ZServer.FTPRequest import FTPRequest
 
 from ZServer import requestCloseOnExec
 

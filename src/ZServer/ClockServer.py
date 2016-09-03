@@ -13,6 +13,7 @@
 
 """ Zope clock server.  Generate a faux HTTP request on a regular basis
 by coopting the asyncore API. """
+from __future__ import absolute_import
 
 import posixpath
 import os

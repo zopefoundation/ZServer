@@ -16,6 +16,7 @@ FTP Request class for FTP server.
 The FTP Request does the dirty work of turning an FTP request into something
 that ZPublisher can understand.
 """
+from __future__ import absolute_import
 
 from ZPublisher.HTTPRequest import HTTPRequest
 

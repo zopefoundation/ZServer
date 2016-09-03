@@ -15,8 +15,9 @@ ZServer HTTPResponse
 
 The HTTPResponse class takes care of server headers, response munging
 and logging duties.
-
 """
+from __future__ import absolute_import
+
 import asyncore
 from cStringIO import StringIO
 import re
@@ -26,9 +27,9 @@ import time
 
 from zope.event import notify
 
-from ZPublisher.HTTPResponse import HTTPResponse # XXX WTF?
-from ZPublisher.Iterators import IStreamIterator # XXX WTF?
-from ZPublisher.pubevents import PubBeforeStreaming # XXX WTF?
+from ZPublisher.HTTPResponse import HTTPResponse
+from ZPublisher.Iterators import IStreamIterator
+from ZPublisher.pubevents import PubBeforeStreaming
 
 from ZServer.medusa.http_date import build_http_date
 from ZServer.PubCore.ZEvent import Wakeup
