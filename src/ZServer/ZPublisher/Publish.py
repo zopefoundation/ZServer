@@ -18,6 +18,7 @@ from thread import allocate_lock
 import transaction
 from urlparse import urlparse
 
+from AccessControl.SecurityManagement import noSecurityManager
 from six import reraise
 from zExceptions import (
     HTTPOk,
@@ -35,6 +36,7 @@ from ZPublisher import pubevents
 from ZPublisher import Retry
 from ZPublisher.HTTPRequest import HTTPRequest as Request
 from ZPublisher.HTTPResponse import HTTPResponse as Response
+from ZPublisher.utils import recordMetaData
 
 
 def call_object(object, args, request):
@@ -110,6 +112,7 @@ def publish(request, module_name, after_list, debug=0,
         if realm and not request.get('REMOTE_USER', None):
             response.realm = realm
 
+        noSecurityManager()
         if bobo_before is not None:
             bobo_before()
 
@@ -130,7 +133,7 @@ def publish(request, module_name, after_list, debug=0,
         notify(pubevents.PubAfterTraversal(request))
 
         if transactions_manager:
-            transactions_manager.recordMetaData(object, request)
+            recordMetaData(object, request)
 
         ok_exception = None
         try:
@@ -386,19 +389,13 @@ class DefaultTransactionsManager:
         transaction.begin()
 
     def commit(self):
-        transaction.commit()
+        if transaction.isDoomed():
+            transaction.abort()
+        else:
+            transaction.commit()
 
     def abort(self):
         transaction.abort()
-
-    def recordMetaData(self, object, request):
-        # Is this code needed?
-        request_get = request.get
-        T = transaction.get()
-        T.note(request_get('PATH_INFO'))
-        auth_user = request_get('AUTHENTICATED_USER', None)
-        if auth_user is not None:
-            T.setUser(auth_user, request_get('AUTHENTICATION_PATH'))
 
 
 def publish_module(module_name,

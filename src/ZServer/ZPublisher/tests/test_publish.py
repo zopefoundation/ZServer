@@ -55,9 +55,6 @@ class TransactionsManager:
         tracer.append('commit')
         tracer.possiblyRaiseException('commit')
 
-    def recordMetaData(self, obj, request):
-        pass
-
 zpublisher_transactions_manager = TransactionsManager()
 
 
