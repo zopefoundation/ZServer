@@ -200,7 +200,7 @@ class ZopeStarter(object):
             ZServer.Zope2.Startup.config.TRUSTED_PROXIES = tuple(mapped)
         from ZServer.ZPublisher.exceptionhook import EXCEPTION_HOOK
         import Zope2
-        Zope2.zpublisher_exception_hook = EXCEPTION_HOOK
+        setattr(Zope2, 'zpublisher_exception_hook', EXCEPTION_HOOK)
 
     def setupSecurityOptions(self):
         import AccessControl

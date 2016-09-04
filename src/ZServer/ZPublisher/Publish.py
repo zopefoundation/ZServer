@@ -18,6 +18,7 @@ from thread import allocate_lock
 import transaction
 from urlparse import urlparse
 
+from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from six import reraise
 from zExceptions import (
@@ -38,6 +39,9 @@ from ZPublisher.HTTPRequest import HTTPRequest as Request
 from ZPublisher.HTTPResponse import HTTPResponse as Response
 from ZPublisher.utils import recordMetaData
 
+_default_debug_mode = False
+_default_realm = None
+
 
 def call_object(object, args, request):
     return object(*args)
@@ -52,8 +56,9 @@ def missing_name(name, request):
 def dont_publish_class(klass, request):
     request.response.forbiddenError("class %s" % klass.__name__)
 
-_default_debug_mode = False
-_default_realm = None
+
+def validate_user(request, user):
+    newSecurityManager(request, user)
 
 
 def set_default_debug_mode(debug_mode):
@@ -359,7 +364,8 @@ def get_module_info(module_name, modules={},
                 object = module
 
             error_hook = getattr(module, 'zpublisher_exception_hook', None)
-            validated_hook = getattr(module, 'zpublisher_validated_hook', None)
+            validated_hook = getattr(
+                module, 'zpublisher_validated_hook', validate_user)
 
             transactions_manager = getattr(
                 module, 'zpublisher_transactions_manager', None)
