@@ -4,6 +4,11 @@ Exception handling
 These tests capture the current behavior. Maybe some of that behavior should
 be changed. The behavior caused by handleErrors=False shows only up in tests.
 
+Set exception hook:
+
+    >>> from ZServer.ZPublisher.exceptionhook import EXCEPTION_HOOK
+    >>> import Zope2
+    >>> Zope2.zpublisher_exception_hook = EXCEPTION_HOOK
 
 Create the browser object we'll be using.
 
