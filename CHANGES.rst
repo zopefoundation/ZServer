@@ -1,9 +1,17 @@
 Changelog
 =========
 
-4.0 (unreleased)
-----------------
+4.0a1 (2016-09-09)
+------------------
 
+- Broke out ZServer and related code from Zope core project.
+
+  This includes FTP, webdav and xml-rpc handling, zope.conf support
+  for ZServer related configuration and instance creation and zdaemon
+  based startup logic.
+
+  The mkzopeinstance, runzope, zopectl and zpasswd scripts are now
+  provided by this project.
 
 3.0 (2016-08-06)
 ----------------
