@@ -443,8 +443,11 @@ class zhttp_channel(http_channel):
                 # precious resources.
                 # Instead, just bail out and leave the nasty client hanging.
                 # Hanging's too good for them!
-                # Unfortunate side effect: the attack gets logged to the
-                # event log, but not the access log.
+                #
+                # Note that this exception normally travels up to the
+                # asyncore module and gets logged as INFO. However, ZServer
+                # runs ``patchAsyncoreLogger`` which lowers this to DEBUG
+                # level.
                 raise ValueError('HTTP headers invalid (too long) (got: %d bytes, allowed %d bytes' % (inbuf_len, self.max_header_len))
 
 class zhttp_server(http_server):
