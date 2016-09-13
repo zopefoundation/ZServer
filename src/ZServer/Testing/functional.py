@@ -20,7 +20,7 @@ import re
 import sys
 
 import transaction
-from zope.interface import implements
+from zope.interface import implementer
 
 from Testing.ZopeTestCase import sandbox
 from Testing.ZopeTestCase import interfaces
@@ -45,6 +45,7 @@ def savestate(func):
     return wrapped_func
 
 
+@implementer(interfaces.IFunctional)
 class Functional(sandbox.Sandboxed):
     '''Derive from this class and an xTestCase to get functional
        testing support::
@@ -52,8 +53,6 @@ class Functional(sandbox.Sandboxed):
            class MyTest(Functional, ZopeTestCase):
                ...
     '''
-
-    implements(interfaces.IFunctional)
 
     @savestate
     def publish(self, path, basic=None, env=None, extra=None,

@@ -37,9 +37,9 @@ if sys.version_info >= (3, ):
     basestring = str
 
 
+# @zope.interface.implementer(zope.server.interfaces.IHeaderOutput)
 class HTTPHeaderOutput:
 
-    # zope.interface.implements(zope.server.interfaces.IHeaderOutput)
     status = '200'
     reason = 'OK'
 

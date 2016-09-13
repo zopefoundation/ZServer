@@ -1,6 +1,6 @@
 import doctest
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IBrowserRequest
 from ZPublisher import Retry
@@ -88,11 +88,10 @@ class Response:
         pass
 
 
+@implementer(IBrowserRequest)
 class Request:
     """Mock Request to replace ZPublisher.HTTPRequest.HTTPRequest.
     """
-
-    implements(IBrowserRequest)
 
     args = ()
 

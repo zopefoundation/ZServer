@@ -4,6 +4,7 @@ Changelog
 4.0a2 (unreleased)
 ------------------
 
+- Use `@implementer` class decorator.
 
 4.0a1 (2016-09-09)
 ------------------

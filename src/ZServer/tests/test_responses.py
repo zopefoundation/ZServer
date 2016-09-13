@@ -20,7 +20,7 @@ from ZServer.PCGIServer import PCGIResponse
 from ZServer.FCGIServer import FCGIResponse
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.pubevents import PubBeforeStreaming
-from zope.interface import implements
+from zope.interface import implementer
 import unittest
 from cStringIO import StringIO
 
@@ -86,8 +86,8 @@ class DummyChannel:
                 break
             self.out.write(s)
 
+@implementer(IStreamIterator)
 class test_streamiterator:
-    implements(IStreamIterator)
     data = "hello"
     done = 0
 
