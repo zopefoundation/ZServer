@@ -57,7 +57,7 @@ from ZServer.medusa.default_handler import unquote
 from asyncore import compact_traceback, dispatcher
 
 from ZServer import ZOPE_VERSION, ZSERVER_VERSION
-from ZServer import requestCloseOnExec
+from ZServer.utils import requestCloseOnExec
 from ZServer import DebugLogger
 from ZServer.medusa import logger
 
@@ -300,7 +300,7 @@ class zhttp_handler:
 from ZServer.HTTPResponse import ChannelPipe
 
 class zwsgi_handler(zhttp_handler):
-    
+
     def continue_request(self, sin, request):
         "continue handling request now that we have the stdin"
 
@@ -321,7 +321,7 @@ class zwsgi_handler(zhttp_handler):
         else:
             # a normal http request
             connection_re = CONNECTION
-        
+
         env['http_connection'] = get_header(connection_re,
                                             request.header).lower()
         env['server_version']=request.channel.server.SERVER_IDENT
@@ -336,7 +336,7 @@ class zwsgi_handler(zhttp_handler):
         env['wsgi.url_scheme']   = env['SERVER_PROTOCOL'].split('/')[0]
 
         request.channel.current_request=None
-        request.channel.queue.append(('Zope2WSGI', env, 
+        request.channel.queue.append(('Zope2WSGI', env,
                                       env['wsgi.output'].start_response))
         request.channel.work()
 
@@ -436,10 +436,10 @@ class zhttp_channel(http_channel):
         else:
                 # we are receiving header (request) data
             self.in_buffer = self.in_buffer + data
-            inbuf_len = len(self.in_buffer) 
+            inbuf_len = len(self.in_buffer)
             if inbuf_len > self.max_header_len:
                 # Don't bother with a proper response header,
-                # we are probably under attack and that would just consume 
+                # we are probably under attack and that would just consume
                 # precious resources.
                 # Instead, just bail out and leave the nasty client hanging.
                 # Hanging's too good for them!
