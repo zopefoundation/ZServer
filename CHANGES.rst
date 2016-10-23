@@ -4,6 +4,8 @@ Changelog
 4.0a2 (unreleased)
 ------------------
 
+- Remove mechanize based testbrowser support.
+
 - Use `@implementer` class decorator.
 
 4.0a1 (2016-09-09)
