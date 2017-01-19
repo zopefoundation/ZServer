@@ -16,7 +16,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ZServer',
-    version='4.0a2',
+    version='4.0a3.dev0',
     url='https://pypi.python.org/pypi/ZServer',
     license='ZPL 2.1',
     description="Zope 2 ZServer.",
