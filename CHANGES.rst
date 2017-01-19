@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0a2 (unreleased)
+4.0a2 (2017-01-20)
 ------------------
 
 - Remove mechanize based testbrowser support.
