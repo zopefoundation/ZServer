@@ -231,14 +231,15 @@ class ZServerHTTPResponseTestCase(unittest.TestCase):
         response._http_connection = 'keep-alive'
         response.body = '123456789'
         response.setHeader('Content-Type', 'text/plain')
-        self._assertResponsesAreEqual(str(response),
-                                      ('HTTP/1.1 200 OK',
-                                       'Content-Length: 9',
-                                       'Content-Type: text/plain',
-                                       'Date: ...',
-                                       'Server: ...',
-                                       '',
-                                       '123456789'))
+        self._assertResponsesAreEqual(
+            str(response),
+            ('HTTP/1.1 200 OK',
+             'Content-Length: 9',
+             'Content-Type: text/plain; charset=utf-8',
+             'Date: ...',
+             'Server: ...',
+             '',
+             '123456789'))
 
     def test_emptyBody(self):
         # Check that a response with an empty message body returns a
@@ -264,14 +265,15 @@ class ZServerHTTPResponseTestCase(unittest.TestCase):
         response._http_connection = 'keep-alive'
         response.setHeader('Content-Type', 'text/plain')
         response.setHeader('Content-Length', 123)
-        self._assertResponsesAreEqual(str(response),
-                                      ('HTTP/1.1 200 OK',
-                                       'Content-Length: 123',
-                                       'Content-Type: text/plain',
-                                       'Date: ...',
-                                       'Server: ...',
-                                       '',
-                                       ''))
+        self._assertResponsesAreEqual(
+            str(response),
+            ('HTTP/1.1 200 OK',
+             'Content-Length: 123',
+             'Content-Type: text/plain; charset=utf-8',
+             'Date: ...',
+             'Server: ...',
+             '',
+             ''))
 
     def test_uses_accumulated_headers_correctly(self):
         response = self._makeOne()
