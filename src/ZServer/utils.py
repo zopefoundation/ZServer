@@ -42,14 +42,15 @@ def patchAsyncoreLogger():
     LOG = getLogger('ZServer')
 
     def log_info(self, message, type='info'):
-        if message[:44]=='uncaptured python exception, closing channel' or \
+        if message[:44] == 'uncaptured python exception, closing channel' or \
            message == 'Computing default hostname':
             LOG.debug(message)
         else:
             getattr(LOG, type)(message)
 
     import asyncore
-    asyncore.dispatcher.log_info=log_info
+    asyncore.dispatcher.log_info = log_info
+
 
 # A routine to try to arrange for request sockets to be closed
 # on exec. This makes it easier for folks who spawn long running
@@ -60,7 +61,7 @@ try:
     def requestCloseOnExec(sock):
         try:
             fcntl.fcntl(sock.fileno(), fcntl.F_SETFD, fcntl.FD_CLOEXEC)
-        except: # XXX What was this supposed to catch?
+        except Exception:  # XXX What was this supposed to catch?
             pass
 
 except (ImportError, AttributeError):
@@ -68,7 +69,8 @@ except (ImportError, AttributeError):
     def requestCloseOnExec(sock):
         pass
 
+
 def patchSyslogServiceName():
     from medusa import logger
     # override the service name in logger.syslog_logger
-    logger.syslog_logger.svc_name='ZServer'
+    logger.syslog_logger.svc_name = 'ZServer'

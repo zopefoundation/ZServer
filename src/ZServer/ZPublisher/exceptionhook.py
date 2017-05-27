@@ -174,4 +174,5 @@ class ExceptionHook(object):
         finally:
             traceback = None
 
+
 EXCEPTION_HOOK = ExceptionHook()

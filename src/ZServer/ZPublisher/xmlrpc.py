@@ -49,6 +49,7 @@ def dump_instance(self, value, write):
                       if k[:1] != '_'])
         self.dump_struct(value, write)
 
+
 xmlrpclib.Marshaller.dispatch[types.InstanceType] = dump_instance
 xmlrpclib.Marshaller.dispatch[DateTime] = dump_instance
 
@@ -101,7 +102,7 @@ def is_xmlrpc_response(response):
     return isinstance(response, Response)
 
 
-class Response:
+class Response(object):
     """Customized Response that handles XML-RPC-specific details.
 
     We override setBody to marhsall Python objects into XML-RPC. We
@@ -202,5 +203,6 @@ class Response:
         self._real.setStatus(200)
 
         return tb
+
 
 response = Response

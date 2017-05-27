@@ -38,7 +38,7 @@ if sys.version_info >= (3, ):
 
 
 # @zope.interface.implementer(zope.server.interfaces.IHeaderOutput)
-class HTTPHeaderOutput:
+class HTTPHeaderOutput(object):
 
     status = '200'
     reason = 'OK'
@@ -202,7 +202,7 @@ def http(request_string, handle_errors=True):
     return DocResponseWrapper(response, outstream, path, header_output)
 
 
-class ZopeSuiteFactory:
+class ZopeSuiteFactory(object):
 
     def __init__(self, *args, **kw):
         self._args = args

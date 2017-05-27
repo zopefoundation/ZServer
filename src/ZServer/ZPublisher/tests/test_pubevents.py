@@ -217,6 +217,7 @@ class _Request(BaseRequest):
         # override to get rid of the 'EndRequestEvent' notification
         pass
 
+
 # define things necessary for publication
 bobo_application = _Application()
 

@@ -20,7 +20,7 @@ import socket
 import ZConfig
 
 
-class ServerFactory:
+class ServerFactory(object):
     def __init__(self, address=None):
         self.ip = None
         if address is None:
@@ -142,10 +142,9 @@ class FCGIServerFactory(ServerFactory):
     def __init__(self, section):
 
         import warnings
-        warnings.warn("Using FastCGI is deprecated. You should use mod_proxy " 
+        warnings.warn("Using FastCGI is deprecated. You should use mod_proxy "
                       "to run Zope with Apache", DeprecationWarning,
                       stacklevel=2)
-
 
         import socket
         if section.address.family == socket.AF_INET:
@@ -191,7 +190,6 @@ class MonitorServerFactory(ServerFactory):
         # XXX This is really out of place; there should be a better
         # way.  For now, at least we can make it a separate method.
 
-        import ZODB # :-( required to import user
         from AccessControl.User import emergency_user
         if hasattr(emergency_user, '__null_user__'):
             pw = None
@@ -208,6 +206,7 @@ class ICPServerFactory(ServerFactory):
         from ZServer.ICPServer import ICPServer
         return ICPServer(self.ip, self.port)
 
+
 class ClockServerFactory(ServerFactory):
     def __init__(self, section):
         ServerFactory.__init__(self)
@@ -216,11 +215,10 @@ class ClockServerFactory(ServerFactory):
         self.user = section.user
         self.password = section.password
         self.hostheader = section.host
-        self.host = None # appease configuration machinery
+        self.host = None  # appease configuration machinery
 
     def create(self):
         from ZServer.ClockServer import ClockServer
         from ZServer.AccessLogger import access_logger
         return ClockServer(self.method, self.period, self.user,
                            self.password, self.hostheader, access_logger)
-    

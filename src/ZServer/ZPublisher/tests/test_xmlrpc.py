@@ -4,7 +4,7 @@ import xmlrpclib
 from DateTime import DateTime
 
 
-class FauxResponse:
+class FauxResponse(object):
 
     def __init__(self):
         self._headers = {}
@@ -20,7 +20,7 @@ class FauxResponse:
         self._status = status
 
 
-class FauxInstance:
+class FauxInstance(object):
     def __init__(self, **kw):
         self.__dict__.update(kw)
 

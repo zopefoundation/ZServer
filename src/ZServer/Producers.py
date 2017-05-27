@@ -15,59 +15,62 @@ ZServer pipe utils. These producers basically function as callbacks.
 """
 
 import asyncore
-import sys
 
-class ShutdownProducer:
+
+class ShutdownProducer(object):
     "shuts down medusa"
     def more(self):
         asyncore.close_all()
 
 
-class LoggingProducer:
+class LoggingProducer(object):
     "logs request"
     def __init__(self, logger, bytes, method='log'):
-        self.logger=logger
-        self.bytes=bytes
-        self.method=method
+        self.logger = logger
+        self.bytes = bytes
+        self.method = method
 
     def more(self):
         getattr(self.logger, self.method)(self.bytes)
-        self.logger=None
+        self.logger = None
         return ''
 
 
-class CallbackProducer:
+class CallbackProducer(object):
     "Performs a callback in the channel's thread"
     def __init__(self, callback):
-        self.callback=callback
+        self.callback = callback
 
     def more(self):
         self.callback()
-        self.callback=None
+        self.callback = None
         return ''
 
 
-class file_part_producer:
+class file_part_producer(object):
     "producer wrapper for part of a file[-like] objects"
     # match http_channel's outgoing buffer size
-    out_buffer_size = 1<<16
+    out_buffer_size = 1 << 16
 
     def __init__(self, file, lock, start, end):
-        self.file=file
-        self.lock=lock
-        self.start=start
-        self.end=end
+        self.file = file
+        self.lock = lock
+        self.start = start
+        self.end = end
 
     def more(self):
-        end=self.end
-        if not end: return ''
-        start=self.start
-        if start >= end: return ''
+        end = self.end
+        if not end:
+            return ''
+        start = self.start
+        if start >= end:
+            return ''
 
-        file=self.file
-        size=end-start
-        bsize=self.out_buffer_size
-        if size > bsize: size=bsize
+        file = self.file
+        size = end - start
+        bsize = self.out_buffer_size
+        if size > bsize:
+            size = bsize
 
         self.lock.acquire()
         try:
@@ -77,28 +80,31 @@ class file_part_producer:
             self.lock.release()
 
         if data:
-            start=start+len(data)
+            start = start + len(data)
             if start < end:
-                self.start=start
+                self.start = start
                 return data
 
-        self.end=0
+        self.end = 0
         del self.file
 
         return data
 
-class file_close_producer:
+
+class file_close_producer(object):
+
     def __init__(self, file):
-        self.file=file
+        self.file = file
 
     def more(self):
-        file=self.file
+        file = self.file
         if file is not None:
             file.close()
-            self.file=None
+            self.file = None
         return ''
 
-class iterator_producer:
+
+class iterator_producer(object):
     def __init__(self, iterator):
         self.iterator = iterator
 

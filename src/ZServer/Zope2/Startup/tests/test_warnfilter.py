@@ -91,7 +91,7 @@ class TestWarnFilter(unittest.TestCase):
                action wontwork
                category ZServer.Zope2.Startup.tests.test_schema.TestSchemaWarning
             </warnfilter>
-            """)
+            """)  # NOQA
 
     def test_warn_category(self):
         self.assertRaises(ZConfig.ConfigurationSyntaxError,

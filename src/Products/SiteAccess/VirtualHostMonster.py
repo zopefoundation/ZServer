@@ -248,6 +248,7 @@ class VirtualHostMonster(Persistent, Item, Implicit):
             request.setVirtualRoot([])
         return parents.pop()  # He'll get put back on
 
+
 InitializeClass(VirtualHostMonster)
 
 
@@ -261,6 +262,7 @@ def manage_addVirtualHostMonster(self, id=None, REQUEST=None, **ignored):
         goto = '%s/manage_main' % self.absolute_url()
         qs = 'manage_tabs_message=Virtual+Host+Monster+added.'
         raise Redirect('%s?%s' % (goto, qs))
+
 
 constructors = (
     ('manage_addVirtualHostMonster', manage_addVirtualHostMonster),

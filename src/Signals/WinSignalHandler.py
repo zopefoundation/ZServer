@@ -248,6 +248,7 @@ class SignalHandler(object):
                 logger.exception("A handler for %s failed!'" % signame)
             wakeSelect()  # trigger a walk around the Lifetime loop.
 
+
 _signals = None
 
 
@@ -277,6 +278,7 @@ def get_signal_name(n):
 def consoleCtrlHandler(ctrlType):
     # The win32 ConsoleCtrlHandler
     return SignalHandler.consoleCtrlHandler(ctrlType)
+
 
 # The SignalHandler is actually a singleton.
 SignalHandler = SignalHandler()

@@ -33,7 +33,7 @@ class ZServerResponseTestCase(unittest.TestCase):
     def test_http_response_write_unicode(self):
         response = ZServerHTTPResponse()
         self.assertRaises(TypeError, response.write, u'bad')
-    
+
     def test_ftp_response_write_unicode(self):
         response = FTPResponse()
         self.assertRaises(TypeError, response.write, u'bad')
@@ -54,15 +54,17 @@ class ZServerResponseTestCase(unittest.TestCase):
         one.outputBody()
         all = channel.all()
         lines = all.split('\r\n')
-        self.assertEqual(lines[-2], '')    # end of headers
-        self.assertEqual(lines[-1], 'hello') # payload
+        self.assertEqual(lines[-2], '')  # end of headers
+        self.assertEqual(lines[-1], 'hello')  # payload
 
     def test_setBodyIteratorFailsWithoutContentLength(self):
         one = ZServerHTTPResponse(stdout=DummyChannel())
         self.assertRaises(AssertionError,
                           one.setBody, test_streamiterator())
-    
-class DummyChannel:
+
+
+class DummyChannel(object):
+
     def __init__(self):
         self.out = StringIO()
 
@@ -86,8 +88,9 @@ class DummyChannel:
                 break
             self.out.write(s)
 
+
 @implementer(IStreamIterator)
-class test_streamiterator:
+class test_streamiterator(object):
     data = "hello"
     done = 0
 
@@ -97,12 +100,13 @@ class test_streamiterator:
             return self.data
         raise StopIteration
 
+
 class ZServerHTTPResponseTestCase(unittest.TestCase):
     """Test ZServer HTTPResponse object"""
-    
+
     def _makeOne(self):
         return ZServerHTTPResponse()
-    
+
     def testToString(self):
         response = self._makeOne()
         response.headers = {
@@ -115,19 +119,19 @@ class ZServerHTTPResponseTestCase(unittest.TestCase):
                                         ('Foo-bar', 'monty')]
         response.cookies = dict(foo=dict(value='bar'))
         response.body = 'A body\nwith multiple lines\n'
-        
+
         result = str(response)
         headers, body = result.rsplit('\r\n\r\n')
-        
+
         self.assertEqual(body, response.body)
-        
+
         self.assertTrue(headers.startswith('HTTP/1.0 200 OK\r\n'))
-        
+
         # 14 header lines all delimited by \r\n
         self.assertEqual(
             ['\n' in line for line in headers.split('\r\n')],
             14 * [False])
-        
+
         self.assertTrue('Multilined: eggs\r\n\tham\r\n' in headers)
         self.assertTrue('Foo-bar: monty\r\n' in headers)
         self.assertTrue('Foo-Bar: bar\r\n' in headers)
@@ -137,7 +141,7 @@ class ZServerHTTPResponseTestCase(unittest.TestCase):
         # Sort the headers into alphabetical order.
         headers = got[1:got.index('')]
         headers.sort()
-        got[1:len(headers)+1] = headers
+        got[1:len(headers) + 1] = headers
         # Compare line by line.
         for n in range(len(expected)):
             if expected[n].endswith('...'):
@@ -197,7 +201,7 @@ class ZServerHTTPResponseTestCase(unittest.TestCase):
                                        'Server: ...',
                                        '',
                                        ''))
-        
+
     def test_304ExplicitKeepAlive(self):
         # Explicit keep-alive connection header for HTTP 1.0.
         response = self._makeOne()
@@ -281,9 +285,14 @@ class ZServerHTTPResponseTestCase(unittest.TestCase):
         response.addHeader('foo', 'bar')
         self.assertTrue('Foo: bar' in str(response))
 
+
 class _Reporter(object):
-    def __init__(self): self.events = []
-    def __call__(self, event): self.events.append(event)
+    def __init__(self):
+        self.events = []
+
+    def __call__(self, event):
+        self.events.append(event)
+
 
 class ZServerHTTPResponseEventsTestCase(unittest.TestCase):
 
@@ -294,25 +303,16 @@ class ZServerHTTPResponseEventsTestCase(unittest.TestCase):
 
     def tearDown(self):
         subscribers[:] = self._saved_subscribers
-    
+
     def testStreaming(self):
         out = StringIO()
         response = ZServerHTTPResponse(stdout=out)
         response.write('datachunk1')
         response.write('datachunk2')
-        
+
         events = self.reporter.events
         self.assertEqual(len(events), 1)
         self.assert_(isinstance(events[0], PubBeforeStreaming))
         self.assertEqual(events[0].response, response)
-        
-        self.assertTrue('datachunk1datachunk2' in out.getvalue())
 
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTests((
-        unittest.makeSuite(ZServerResponseTestCase),
-        unittest.makeSuite(ZServerHTTPResponseTestCase),
-        unittest.makeSuite(ZServerHTTPResponseEventsTestCase)
-    ))
-    return suite
+        self.assertTrue('datachunk1datachunk2' in out.getvalue())

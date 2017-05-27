@@ -46,9 +46,9 @@ def getSchema(schemafile):
         _SCHEMA[schemafile] = opts.schema
     return _SCHEMA[schemafile]
 
+
 # try to preserve logging state so we don't screw up other unit tests
 # that come later
-
 logger_states = {}
 for name in (None, 'trace', 'access'):
     logger = logging.getLogger(name)

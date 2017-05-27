@@ -36,7 +36,7 @@ class WebDAVSrcHandler(zhttp_handler):
         if env['REQUEST_METHOD'] == 'GET':
             path_info = env['PATH_INFO']
             if os.sep != '/':
-                path_info =  path_info.replace(os.sep, '/')
+                path_info = path_info.replace(os.sep, '/')
             path_info = posixpath.join(path_info, 'manage_DAVget')
             path_info = posixpath.normpath(path_info)
             env['PATH_INFO'] = path_info
@@ -47,7 +47,7 @@ class WebDAVSrcHandler(zhttp_handler):
         # and PATH_TRANSLATED
 
         if env.get("HTTP_USER_AGENT", "").find(
-            "Microsoft Data Access Internet Publishing Provider") > -1:
+                "Microsoft Data Access Internet Publishing Provider") > -1:
             if env["PATH_INFO"][-1] == '.':
                 env["PATH_INFO"] = env["PATH_INFO"][:-1]
 

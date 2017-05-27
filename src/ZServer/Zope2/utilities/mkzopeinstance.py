@@ -223,5 +223,6 @@ def get_zope2path(python):
         zope2file = Zope2.__file__
     return os.path.abspath(os.path.dirname(os.path.dirname(zope2file)))
 
+
 if __name__ == "__main__":
     main()

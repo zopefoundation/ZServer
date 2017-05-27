@@ -4,10 +4,10 @@ import time
 from ZServer import ClockServer
 
 
-class DummyLogger:
+class DummyLogger(object):
     def __init__(self):
         self.L = []
-        
+
     def log(self, *arg, **kw):
         self.L.extend(arg)
 
@@ -48,7 +48,7 @@ class ClockServerTests(unittest.TestCase):
                           'Accept: text/html,text/plain',
                           'Host: localhost',
                           'Authorization: Basic %s' % auth])
-                          
+
     def test_get_requests_and_response(self):
         logger = DummyLogger()
         server = self._makeOne(method='a', period=60, user='charlie',
@@ -68,20 +68,21 @@ class ClockServerTests(unittest.TestCase):
         server = self._makeOne(method='a', period=60, user='charlie',
                                password='brown', host='localhost',
                                logger=logger)
-        class dummy_request:
+
+        class dummy_request(object):
             def split_uri(self):
                 return '/a%20', '/b', '?foo=bar', ''
 
             header = ['BAR:baz']
         env = server.get_env(dummy_request())
-        _ENV = dict(REQUEST_METHOD = 'GET',
-                    SERVER_PORT = 'Clock',
-                    SERVER_NAME = 'Zope Clock Server',
-                    SERVER_SOFTWARE = 'Zope',
-                    SERVER_PROTOCOL = 'HTTP/1.0',
-                    SCRIPT_NAME = '',
+        _ENV = dict(REQUEST_METHOD='GET',
+                    SERVER_PORT='Clock',
+                    SERVER_NAME='Zope Clock Server',
+                    SERVER_SOFTWARE='Zope',
+                    SERVER_PROTOCOL='HTTP/1.0',
+                    SCRIPT_NAME='',
                     GATEWAY_INTERFACE='CGI/1.1',
-                    REMOTE_ADDR = '0')
+                    REMOTE_ADDR='0')
         for k, v in _ENV.items():
             self.assertEqual(env[k], v)
         self.assertEqual(env['PATH_INFO'], '/a /b')
@@ -96,22 +97,25 @@ class ClockServerTests(unittest.TestCase):
                                logger=logger)
         self.assertEqual(server.handle_write(), True)
 
-    #def test_handle_error(self):  Can't be usefully tested
+    # def test_handle_error(self):  Can't be usefully tested
 
     def test_readable(self):
         logger = DummyLogger()
-        class DummyHandler:
+
+        class DummyHandler(object):
             def __init__(self):
                 self.arg = []
+
             def __call__(self, *arg):
                 self.arg = arg
+
         handler = DummyHandler()
         server = self._makeOne(method='a', period=1, user='charlie',
                                password='brown', host='localhost',
                                logger=logger, handler=handler)
         self.assertEqual(server.readable(), False)
         self.assertEqual(handler.arg, [])
-        time.sleep(1.1) # allow timeslice to switch
+        time.sleep(1.1)  # allow timeslice to switch
         self.assertEqual(server.readable(), False)
         self.assertEqual(handler.arg[0], 'Zope2')
         from ZServer.HTTPResponse import HTTPResponse
@@ -147,8 +151,3 @@ class ClockServerTests(unittest.TestCase):
         self.assertEqual(aslice, 15)
         aslice = timeslice(3, 18)
         self.assertEqual(aslice, 18)
-
-def test_suite():
-    suite = unittest.makeSuite(ClockServerTests)
-    suite.addTest(unittest.makeSuite(LogHelperTests))
-    return suite

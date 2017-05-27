@@ -15,32 +15,32 @@ import logging
 
 LOG = logging.getLogger('ZServerPublisher')
 
-class ZServerPublisher:
+
+class ZServerPublisher(object):
+
     def __init__(self, accept):
-        from sys import exc_info
         from ZPublisher.Publish import publish_module
         from ZPublisher.WSGIPublisher import publish_module as publish_wsgi
         while 1:
-          try:
-            name, a, b=accept()
-            if name == "Zope2":
-                try:
-                    publish_module(
-                        name,
-                        request=a,
-                        response=b)
-                finally:
-                    b._finish()
-                    a=b=None
-
-            elif name == "Zope2WSGI":
-                try:
-                    res = publish_wsgi(a, b)
-                    for r in res:
-                        a['wsgi.output'].write(r)
-                finally:
-                    # TODO: Support keeping connections open.
-                    a['wsgi.output']._close = 1
-                    a['wsgi.output'].close()
-          except:
-            LOG.error('exception caught', exc_info=True)
+            try:
+                name, a, b = accept()
+                if name == "Zope2":
+                    try:
+                        publish_module(
+                            name,
+                            request=a,
+                            response=b)
+                    finally:
+                        b._finish()
+                        a = b = None
+                elif name == "Zope2WSGI":
+                    try:
+                        res = publish_wsgi(a, b)
+                        for r in res:
+                            a['wsgi.output'].write(r)
+                    finally:
+                        # TODO: Support keeping connections open.
+                        a['wsgi.output']._close = 1
+                        a['wsgi.output'].close()
+            except Exception:
+                LOG.error('exception caught', exc_info=True)

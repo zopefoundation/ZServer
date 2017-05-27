@@ -23,10 +23,10 @@ See http://www.fastcgi.com/fcgi-devkit-2.1/doc/fcgi-spec.html for the
 protocol specificaition.
 """
 
-#----------------------------------------------------------------------
 from __future__ import absolute_import
 
-import asynchat, asyncore
+import asynchat
+import asyncore
 from ZServer.medusa import logger
 from ZServer.medusa.counter import counter
 from ZServer.medusa.http_server import compute_timezone_for_log
@@ -37,7 +37,12 @@ from ZServer.PubCore import handle
 from ZServer.PubCore.ZEvent import Wakeup
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.HTTPRequest import HTTPRequest
-from ZServer.Producers import ShutdownProducer, LoggingProducer, file_part_producer, file_close_producer
+from ZServer.Producers import (
+    file_close_producer,
+    file_part_producer,
+    LoggingProducer,
+    ShutdownProducer,
+)
 
 from ZServer.Zope2.Startup import config
 
@@ -45,13 +50,16 @@ from ZServer import DebugLogger
 
 from cStringIO import StringIO
 from tempfile import TemporaryFile
-import socket, string, os, sys, time
+import socket
+import string
+import os
+import sys
+import time
 import thread
 import base64
 
 tz_for_log = compute_timezone_for_log()
 
-#----------------------------------------------------------------------
 # Set various FastCGI constants
 
 # Maximum number of requests that can be handled.  Apache mod_fastcgi
@@ -59,51 +67,49 @@ tz_for_log = compute_timezone_for_log()
 # connections/requests as they attempt upto the limits of ZServer.
 # These values are suitable defaults for any web server that does ask.
 FCGI_MAX_CONNS = 10
-FCGI_MAX_REQS  = 50
+FCGI_MAX_REQS = 50
 
 # Supported version of the FastCGI protocol
 FCGI_VERSION_1 = 1
 
 # Boolean: can this application multiplex connections?
-FCGI_MPXS_CONNS=0
+FCGI_MPXS_CONNS = 0
 
 # Record types
-FCGI_BEGIN_REQUEST     = 1
-FCGI_ABORT_REQUEST     = 2
-FCGI_END_REQUEST       = 3
-FCGI_PARAMS            = 4
-FCGI_STDIN             = 5
-FCGI_STDOUT            = 6
-FCGI_STDERR            = 7
-FCGI_DATA              = 8
-FCGI_GET_VALUES        = 9
+FCGI_BEGIN_REQUEST = 1
+FCGI_ABORT_REQUEST = 2
+FCGI_END_REQUEST = 3
+FCGI_PARAMS = 4
+FCGI_STDIN = 5
+FCGI_STDOUT = 6
+FCGI_STDERR = 7
+FCGI_DATA = 8
+FCGI_GET_VALUES = 9
 FCGI_GET_VALUES_RESULT = 10
-FCGI_UNKNOWN_TYPE      = 11
-FCGI_MAXTYPE           = FCGI_UNKNOWN_TYPE
+FCGI_UNKNOWN_TYPE = 11
+FCGI_MAXTYPE = FCGI_UNKNOWN_TYPE
 
 # Types of management records
-FCGI_ManagementTypes = [ FCGI_GET_VALUES ]
+FCGI_ManagementTypes = [FCGI_GET_VALUES]
 
-FCGI_NULL_REQUEST_ID=0
+FCGI_NULL_REQUEST_ID = 0
 
 # Masks for flags component of FCGI_BEGIN_REQUEST
 FCGI_KEEP_CONN = 1
 
 # Values for role component of FCGI_BEGIN_REQUEST
-FCGI_RESPONDER  = 1
+FCGI_RESPONDER = 1
 FCGI_AUTHORIZER = 2
-FCGI_FILTER     = 3
+FCGI_FILTER = 3
 
 # Values for protocolStatus component of FCGI_END_REQUEST
 FCGI_REQUEST_COMPLETE = 0               # Request completed nicely
-FCGI_CANT_MPX_CONN    = 1               # This app can't multiplex
-FCGI_OVERLOADED       = 2               # New request rejected; too busy
-FCGI_UNKNOWN_ROLE     = 3               # Role value not known
+FCGI_CANT_MPX_CONN = 1               # This app can't multiplex
+FCGI_OVERLOADED = 2               # New request rejected; too busy
+FCGI_UNKNOWN_ROLE = 3               # Role value not known
 
 
-#----------------------------------------------------------------------
-
-class FCGIRecord:
+class FCGIRecord(object):
     """
     This class represents the various record structures used in the
     FastCGI protocol.  It knows how to read and build itself bits
@@ -126,9 +132,8 @@ class FCGIRecord:
         else:
             self.version = FCGI_VERSION_1
             self.recType = FCGI_UNKNOWN_TYPE
-            self.reqId   = FCGI_NULL_REQUEST_ID
+            self.reqId = FCGI_NULL_REQUEST_ID
         self.content = ""
-
 
     def needContent(self):
         return (self.contentLength and not self.content)
@@ -145,11 +150,10 @@ class FCGIRecord:
     def gotPadding(self):
         self.paddingLength = 0
 
-
     def parseContent(self, data):
         c = self.content = data
         if self.recType == FCGI_BEGIN_REQUEST:
-            self.role  = (ord(c[0]) << 8) + ord(c[1])
+            self.role = (ord(c[0]) << 8) + ord(c[1])
             self.flags = ord(c[2])
 
         elif self.recType == FCGI_UNKNOWN_TYPE:
@@ -167,31 +171,31 @@ class FCGIRecord:
             self.appStatus = (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + b[3]
             self.protocolStatus = ord(c[4])
 
-
-
     def readPair(self, st, pos):
         """
         Read the next name-value pair from st at pos.
         """
         nameLen = ord(st[pos])
         pos = pos + 1
-        if nameLen & 0x80:  # is the high bit set? if so, size is 4 bytes, not 1.
-            b = map(ord, st[pos:pos+3])
+        if nameLen & 0x80:
+            # is the high bit set? if so, size is 4 bytes, not 1.
+            b = map(ord, st[pos:pos + 3])
             pos = pos + 3
-            nameLen = ((nameLen & 0x7F) << 24) + (b[0] << 16) + (b[1] << 8) + b[2]
+            nameLen = ((nameLen & 0x7F) << 24) + \
+                      (b[0] << 16) + (b[1] << 8) + b[2]
 
         valueLen = ord(st[pos])
         pos = pos + 1
         if valueLen & 0x80:  # same thing here...
-            b = map(ord, st[pos:pos+3])
+            b = map(ord, st[pos:pos + 3])
             pos = pos + 3
-            valueLen = ((valueLen & 0x7F) << 24) + (b[0] << 16) + (b[1] << 8) + b[2]
+            valueLen = ((valueLen & 0x7F) << 24) + \
+                       (b[0] << 16) + (b[1] << 8) + b[2]
 
         # pull out the name and value and return with the updated position
-        return ( st[pos : pos+nameLen],
-                 st[pos + nameLen : pos + nameLen + valueLen],
-                 pos + nameLen + valueLen )
-
+        return (st[pos:pos + nameLen],
+                st[pos + nameLen:pos + nameLen + valueLen],
+                pos + nameLen + valueLen)
 
     def writePair(name, value):
         """
@@ -201,19 +205,20 @@ class FCGIRecord:
         if l < 0x80:
             st = chr(l)
         else:
-            st = chr(0x80 | (l >> 24) & 0xFF) + chr((l >> 16) & 0xFF) + \
-                 chr((l >> 8) & 0xFF) + chr(l & 0xFF)
+            st = chr(0x80 | (l >> 24) & 0xFF) + \
+                chr((l >> 16) & 0xFF) + \
+                chr((l >> 8) & 0xFF) + chr(l & 0xFF)
 
         l = len(value)
         if l < 0x80:
             st = st + chr(l)
         else:
-            st = st + chr(0x80 | (l >> 24) & 0xFF) + chr((l >> 16) & 0xFF) + \
-                 chr((l >> 8) & 0xFF) + chr(l & 0xFF)
+            st = st + chr(0x80 | (l >> 24) & 0xFF) + \
+                chr((l >> 16) & 0xFF) + \
+                chr((l >> 8) & 0xFF) + \
+                chr(l & 0xFF)
 
         return st + name + value
-
-
 
     def getRecordAsString(self):
         """
@@ -221,11 +226,12 @@ class FCGIRecord:
         """
         content = self.content
         if self.recType == FCGI_BEGIN_REQUEST:
-            content = chr(self.role>>8) + chr(self.role & 0xFF) + \
-                      chr(self.flags) + 5*'\000'
+            content = chr(self.role >> 8) + \
+                chr(self.role & 0xFF) + \
+                chr(self.flags) + 5 * '\000'
 
         elif self.recType == FCGI_UNKNOWN_TYPE:
-            content = chr(self.unknownType) + 7*'\000'
+            content = chr(self.unknownType) + 7 * '\000'
 
         elif self.recType == FCGI_GET_VALUES or self.recType == FCGI_PARAMS:
             content = ""
@@ -234,27 +240,27 @@ class FCGIRecord:
 
         elif self.recType == FCGI_END_REQUEST:
             v = self.appStatus
-            content = chr((v >> 24) & 0xFF) + chr((v >> 16) & 0xFF) + \
-                      chr((v >> 8) & 0xFF) + chr(v & 0xFF)
-            content = content + chr(self.protocolStatus) + 3*'\000'
+            content = chr((v >> 24) & 0xFF) + \
+                chr((v >> 16) & 0xFF) + \
+                chr((v >> 8) & 0xFF) + \
+                chr(v & 0xFF)
+            content = content + chr(self.protocolStatus) + 3 * '\000'
 
         cLen = len(content)
         eLen = (cLen + 7) & (0xFFFF - 7)    # align to an 8-byte boundary
         padLen = eLen - cLen
 
-        hdr = [ self.version,
-                self.recType,
-                self.reqId >> 8,
-                self.reqId & 0xFF,
-                cLen >> 8,
-                cLen & 0xFF,
-                padLen,
-                0]
+        hdr = [self.version,
+               self.recType,
+               self.reqId >> 8,
+               self.reqId & 0xFF,
+               cLen >> 8,
+               cLen & 0xFF,
+               padLen,
+               0]
         hdr = string.join(map(chr, hdr), '')
         return hdr + content + padLen * '\000'
 
-
-#----------------------------------------------------------------------
 
 class FCGIChannel(asynchat.async_chat):
     """
@@ -270,8 +276,8 @@ class FCGIChannel(asynchat.async_chat):
     easily multiplex multiple connections in the same process, it's no
     great loss.
     """
-    closed=0
-    using_temp_stdin=None
+    closed = 0
+    using_temp_stdin = None
 
     def __init__(self, server, sock, addr):
         self.server = server
@@ -285,20 +291,16 @@ class FCGIChannel(asynchat.async_chat):
         self.filterData = StringIO()  # not currently used, but maybe someday
         self.requestId = 0
 
-
     def setInitialState(self):
         self.data = StringIO()
         self.curRec = None
-        self.set_terminator(8) # FastCGI record header size.
-
+        self.set_terminator(8)  # FastCGI record header size.
 
     def readable(self):
         return self.remainingRecs != 0
 
-
     def collect_incoming_data(self, data):
         self.data.write(data)
-
 
     def found_terminator(self):
         # Are we starting a new record?  If so, data is the header.
@@ -322,7 +324,6 @@ class FCGIChannel(asynchat.async_chat):
         if rec.needPadding():
             rec.gotPadding()
 
-
         # If we get this far without returning, we've got the whole
         # record.  Figure out what to do with it.
 
@@ -338,44 +339,46 @@ class FCGIChannel(asynchat.async_chat):
             r2.unknownType = rec.recType
             self.push(r2.getRecordAsString(), 0)
 
-
         # Since we don't actually have to do anything to ignore the
         # following conditions, they have been commented out and have
         # been left in the code for documentation purposes.
 
         # Ignore requests that aren't active
-        # elif rec.reqId != self.requestId and rec.recType != FCGI_BEGIN_REQUEST:
+        # elif (rec.reqId != self.requestId and
+        #       rec.recType != FCGI_BEGIN_REQUEST):
         #     pass
         #
         # If we're already doing a request, ignore further BEGIN_REQUESTs
         # elif rec.recType == FCGI_BEGIN_REQUEST and self.requestId != 0:
         #     pass
 
-
         # Begin a new request
         elif rec.recType == FCGI_BEGIN_REQUEST and self.requestId == 0:
             self.requestId = rec.reqId
-            if rec.role == FCGI_AUTHORIZER:   self.remainingRecs = 1
-            elif rec.role == FCGI_RESPONDER:  self.remainingRecs = 2
-            elif rec.role == FCGI_FILTER:     self.remainingRecs = 3
+            if rec.role == FCGI_AUTHORIZER:
+                self.remainingRecs = 1
+            elif rec.role == FCGI_RESPONDER:
+                self.remainingRecs = 2
+            elif rec.role == FCGI_FILTER:
+                self.remainingRecs = 3
 
         # Read some name-value pairs (the CGI environment)
         elif rec.recType == FCGI_PARAMS:
             if rec.contentLength == 0:  # end of the stream
 
-                if self.env.has_key('REQUEST_METHOD'):
-                    method=self.env['REQUEST_METHOD']
+                if 'REQUEST_METHOD' in self.env:
+                    method = self.env['REQUEST_METHOD']
                 else:
-                    method='GET'
-                if self.env.has_key('PATH_INFO'):
-                    path=self.env['PATH_INFO']
+                    method = 'GET'
+                if 'PATH_INFO' in self.env:
+                    path = self.env['PATH_INFO']
                 else:
-                    path=''
+                    path = ''
                 DebugLogger.log('B', id(self), '%s %s' % (method, path))
 
                 self.remainingRecs = self.remainingRecs - 1
-                self.content_length=string.atoi(self.env.get(
-                    'CONTENT_LENGTH','0'))
+                self.content_length = string.atoi(self.env.get(
+                    'CONTENT_LENGTH', '0'))
             else:
                 self.env.update(rec.values)
 
@@ -388,12 +391,11 @@ class FCGIChannel(asynchat.async_chat):
                 # replace it with a tempfile if necessary
                 if len(rec.content) + self.stdin.tell() > 1048576 and \
                         not self.using_temp_stdin:
-                    t=TemporaryFile()
+                    t = TemporaryFile()
                     t.write(self.stdin.getvalue())
-                    self.stdin=t
-                    self.using_temp_stdin=1
+                    self.stdin = t
+                    self.using_temp_stdin = 1
                 self.stdin.write(rec.content)
-
 
         # read some filter data
         elif rec.recType == FCGI_DATA:
@@ -402,7 +404,6 @@ class FCGIChannel(asynchat.async_chat):
             else:
                 self.filterData.write(rec.content)
 
-
         # We've processed the record.  Now what do we do?
         if self.remainingRecs > 0:
             # prepare to get the next record
@@ -410,90 +411,88 @@ class FCGIChannel(asynchat.async_chat):
 
         else:
             # We've got them all.  Let ZPublisher do its thang.
-
             DebugLogger.log('I', id(self), self.stdin.tell())
 
             # But first, fixup the auth header if using newest mod_fastcgi.
-            if self.env.has_key('Authorization'):
+            if 'Authorization' in self.env:
                 self.env['HTTP_AUTHORIZATION'] = self.env['Authorization']
                 del self.env['Authorization']
 
             self.stdin.seek(0)
             self.send_response()
 
-
-
     def send_response(self):
         """
         Create output pipes, request, and response objects.  Give them
         to ZPublisher for processing.
         """
-        response = FCGIResponse(stdout = FCGIPipe(self, FCGI_STDOUT),
-                                stderr = StringIO())
+        response = FCGIResponse(stdout=FCGIPipe(self, FCGI_STDOUT),
+                                stderr=StringIO())
         response.setChannel(self)
-        request  = HTTPRequest(self.stdin, self.env, response)
+        request = HTTPRequest(self.stdin, self.env, response)
         handle(self.server.module, request, response)
 
-
     def log_request(self, bytes):
-
         DebugLogger.log('E', id(self))
 
-        if self.env.has_key('HTTP_USER_AGENT'):
-            user_agent=self.env['HTTP_USER_AGENT']
+        if 'HTTP_USER_AGENT' in self.env:
+            user_agent = self.env['HTTP_USER_AGENT']
         else:
-            user_agent=''
-        if self.env.has_key('HTTP_REFERER'):
-            referer=self.env['HTTP_REFERER']
-        else:
-            referer=''
+            user_agent = ''
 
-        if self.env.has_key('PATH_INFO'):
-            path=self.env['PATH_INFO']
+        if 'HTTP_REFERER' in self.env:
+            referer = self.env['HTTP_REFERER']
         else:
-            path=''
-        if self.env.has_key('REQUEST_METHOD'):
-            method=self.env['REQUEST_METHOD']
+            referer = ''
+
+        if 'PATH_INFO' in self.env:
+            path = self.env['PATH_INFO']
         else:
-            method="GET"
+            path = ''
+
+        if 'REQUEST_METHOD' in self.env:
+            method = self.env['REQUEST_METHOD']
+        else:
+            method = "GET"
+
         user_name = '-'
-        if self.env.has_key('HTTP_AUTHORIZATION'):
-            http_authorization=self.env['HTTP_AUTHORIZATION']
+        if 'HTTP_AUTHORIZATION' in self.env:
+            http_authorization = self.env['HTTP_AUTHORIZATION']
             if string.lower(http_authorization[:6]) == 'basic ':
-                try: decoded=base64.decodestring(http_authorization[6:])
-                except base64.binascii.Error: decoded=''
+                try:
+                    decoded = base64.decodestring(http_authorization[6:])
+                except base64.binascii.Error:
+                    decoded = ''
                 t = string.split(decoded, ':', 1)
                 if len(t) >= 2:
                     user_name = t[0]
         if self.addr:
-            self.server.logger.log (
+            self.server.logger.log(
                 self.addr[0],
                 '%s - %s [%s] "%s %s" %d %d "%s" "%s"' % (
                     self.addr[1],
                     user_name,
-                    time.strftime (
-                    '%d/%b/%Y:%H:%M:%S ',
-                    time.localtime(time.time())
+                    time.strftime(
+                        '%d/%b/%Y:%H:%M:%S ',
+                        time.localtime(time.time())
                     ) + tz_for_log,
                     method, path, self.reply_code, bytes,
                     referer, user_agent
-                    )
                 )
+            )
         else:
-            self.server.logger.log (
+            self.server.logger.log(
                 '127.0.0.1 ',
                 '- %s [%s] "%s %s" %d %d "%s" "%s"' % (
                     user_name,
-                    time.strftime (
-                    '%d/%b/%Y:%H:%M:%S ',
-                    time.localtime(time.time())
+                    time.strftime(
+                        '%d/%b/%Y:%H:%M:%S ',
+                        time.localtime(time.time())
                     ) + tz_for_log,
                     method, path, self.reply_code, bytes,
                     referer, user_agent
-                    )
                 )
-
-
+            )
 
     def handleManagementTypes(self, rec):
         """
@@ -501,19 +500,18 @@ class FCGIChannel(asynchat.async_chat):
         """
         if rec.recType == FCGI_GET_VALUES:
             rec.recType = FCGI_GET_VALUES_RESULT
-            vars={'FCGI_MAX_CONNS' : FCGI_MAX_CONNS,
-                  'FCGI_MAX_REQS'  : FCGI_MAX_REQS,
-                  'FCGI_MPXS_CONNS': FCGI_MPXS_CONNS}
+            vars = {'FCGI_MAX_CONNS': FCGI_MAX_CONNS,
+                    'FCGI_MAX_REQS': FCGI_MAX_REQS,
+                    'FCGI_MPXS_CONNS': FCGI_MPXS_CONNS}
             rec.values = vars
             self.push(rec.getRecordAsString(), 0)
-
 
     def sendDataRecord(self, data, recType):
         rec = FCGIRecord()
         rec.recType = recType
-        rec.reqId   = self.requestId
+        rec.reqId = self.requestId
         # Can't send more than 64K minus header size.  8K seems about right.
-        if type(data)==type(''):
+        if isinstance(data, str):
             # send some string data
             while data:
                 chunk = data[:8192]
@@ -522,18 +520,18 @@ class FCGIChannel(asynchat.async_chat):
                 self.push(rec.getRecordAsString(), 0)
         else:
             # send a producer
-            p, cLen=data
+            p, cLen = data
             eLen = (cLen + 7) & (0xFFFF - 7)    # align to an 8-byte boundary
             padLen = eLen - cLen
 
-            hdr = [ rec.version,
-                    rec.recType,
-                    rec.reqId >> 8,
-                    rec.reqId & 0xFF,
-                    cLen >> 8,
-                    cLen & 0xFF,
-                    padLen,
-                    0]
+            hdr = [rec.version,
+                   rec.recType,
+                   rec.reqId >> 8,
+                   rec.reqId & 0xFF,
+                   cLen >> 8,
+                   cLen & 0xFF,
+                   padLen,
+                   0]
             hdr = string.join(map(chr, hdr), '')
             self.push(hdr, 0)
             self.push(p, 0)
@@ -542,18 +540,18 @@ class FCGIChannel(asynchat.async_chat):
     def sendStreamTerminator(self, recType):
         rec = FCGIRecord()
         rec.recType = recType
-        rec.reqId   = self.requestId
+        rec.reqId = self.requestId
         rec.content = ""
         self.push(rec.getRecordAsString(), 0)
 
     def sendEndRecord(self, appStatus=0):
         rec = FCGIRecord()
-        rec.recType        = FCGI_END_REQUEST
-        rec.reqId          = self.requestId
+        rec.recType = FCGI_END_REQUEST
+        rec.reqId = self.requestId
         rec.protocolStatus = FCGI_REQUEST_COMPLETE
-        rec.appStatus      = appStatus
+        rec.appStatus = appStatus
         self.push(rec.getRecordAsString(), 0)
-        self.requestId     = 0
+        self.requestId = 0
 
     def push(self, producer, send=1):
         # this is thread-safe when send is false
@@ -562,20 +560,20 @@ class FCGIChannel(asynchat.async_chat):
         if self.closed:
             return
         self.producer_fifo.push(producer)
-        if send: self.initiate_send()
+        if send:
+            self.initiate_send()
 
-    push_with_producer=push
+    push_with_producer = push
 
     def close(self):
-        self.closed=1
+        self.closed = 1
         while self.producer_fifo:
-            p=self.producer_fifo.first()
+            p = self.producer_fifo.first()
             if p is not None and not isinstance(p, basestring):
-                p.more() # free up resources held by producer
+                p.more()  # free up resources held by producer
             self.producer_fifo.pop()
         asyncore.dispatcher.close(self)
 
-#----------------------------------------------------------------------
 
 class FCGIServer(asyncore.dispatcher):
     """
@@ -591,7 +589,7 @@ class FCGIServer(asyncore.dispatcher):
     '127.0.0.1'.
     """
 
-    channel_class=FCGIChannel
+    channel_class = FCGIChannel
 
     def __init__(self,
                  module='Main',
@@ -602,7 +600,7 @@ class FCGIServer(asyncore.dispatcher):
                  logger_object=None):
 
         self.ip = ip
-        self.count=counter()
+        self.count = counter()
         asyncore.dispatcher.__init__(self)
         if not logger_object:
             logger_object = logger.file_logger(sys.stdout)
@@ -630,7 +628,7 @@ class FCGIServer(asyncore.dispatcher):
             self.set_reuse_addr()
             self.bind(self.socket_file)
             try:
-                os.chmod(self.socket_file,0777)
+                os.chmod(self.socket_file, 0o777)
             except os.error:
                 pass
         self.listen(256)
@@ -641,8 +639,6 @@ class FCGIServer(asyncore.dispatcher):
                       % ('1.0', time.ctime(time.time()), self.ip,
                          self.port, self.socket_file))
 
-
-
     def handle_accept(self):
         self.count.increment()
         try:
@@ -652,13 +648,11 @@ class FCGIServer(asyncore.dispatcher):
             return
         self.channel_class(self, conn, addr)
 
-
     def readable(self):
         from ZServer import CONNECTION_LIMIT
         return len(asyncore.socket_map) < CONNECTION_LIMIT
 
-
-    def writable (self):
+    def writable(self):
         return 0
 
     def create_socket(self, family, type):
@@ -670,70 +664,72 @@ class FCGIServer(asyncore.dispatcher):
         self.accepting = 1
         return self.socket.listen(num)
 
-#----------------------------------------------------------------------
 
 class FCGIResponse(HTTPResponse):
 
-    _tempfile=None
-    _templock=None
-    _tempstart=0
+    _tempfile = None
+    _templock = None
+    _tempstart = 0
 
     def setChannel(self, channel):
         self.channel = channel
 
     def write(self, data):
 
-        if type(data) != type(''):
+        if not isinstance(data, str):
             raise TypeError('Value must be a string')
 
-        stdout=self.stdout
+        stdout = self.stdout
 
         if not self._wrote:
-            l=self.headers.get('content-length', None)
+            l = self.headers.get('content-length', None)
             if l is not None:
                 try:
-                    if type(l) is type(''): l=string.atoi(l)
+                    if isinstance(l, str):
+                        l = string.atoi(l)
                     if l > 128000:
-                        self._tempfile=TemporaryFile()
-                        self._templock=thread.allocate_lock()
-                except: pass
+                        self._tempfile = TemporaryFile()
+                        self._templock = thread.allocate_lock()
+                except Exception:
+                    pass
 
             stdout.write(str(self))
-            self._wrote=1
+            self._wrote = 1
 
-        if not data: return
+        if not data:
+            return
 
-        t=self._tempfile
+        t = self._tempfile
         if t is None:
             stdout.write(data)
         else:
             while data:
                 # write file producers
                 # each producer holds 32K data
-                chunk=data[:32768]
-                data=data[32768:]
-                l=len(chunk)
-                b=self._tempstart
-                e=b+l
+                chunk = data[:32768]
+                data = data[32768:]
+                l = len(chunk)
+                b = self._tempstart
+                e = b + l
                 self._templock.acquire()
                 try:
                     t.seek(b)
                     t.write(chunk)
                 finally:
                     self._templock.release()
-                self._tempstart=e
-                stdout.write((file_part_producer(t,self._templock,b,e), l))
+                self._tempstart = e
+                stdout.write((file_part_producer(t, self._templock, b, e), l))
 
     def _finish(self):
-        self.channel.reply_code=self.status
+        self.channel.reply_code = self.status
 
         DebugLogger.log('A', id(self.channel), '%d %d' % (
-                self.status, self.stdout.length))
+            self.status, self.stdout.length))
 
-        t=self._tempfile
+        t = self._tempfile
         if t is not None:
             self.stdout.write((file_close_producer(t), 0))
-        self._tempfile=None
+        self._tempfile = None
 
         self.channel.sendStreamTerminator(FCGI_STDOUT)
         self.channel.sendEndRecord()
@@ -749,15 +745,12 @@ class FCGIResponse(HTTPResponse):
             self.channel.push(ShutdownProducer(), 0)
             Wakeup(lambda: asyncore.close_all())
         else:
-            self.channel.push(None,0)
+            self.channel.push(None, 0)
             Wakeup()
-        self.channel=None
+        self.channel = None
 
 
-
-#----------------------------------------------------------------------
-
-class FCGIPipe:
+class FCGIPipe(object):
     """
     This class acts like a file and is used to catch stdout/stderr
     from ZPublisher and create FCGI records out of the data stream to
@@ -766,10 +759,10 @@ class FCGIPipe:
     def __init__(self, channel, recType):
         self.channel = channel
         self.recType = recType
-        self.length  = 0
+        self.length = 0
 
     def write(self, data):
-        if type(data)==type(''):
+        if isinstance(data, str):
             datalen = len(data)
         else:
             p, datalen = data
@@ -779,6 +772,3 @@ class FCGIPipe:
 
     def close(self):
         self.channel = None
-
-
-#----------------------------------------------------------------------

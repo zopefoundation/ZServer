@@ -63,6 +63,7 @@ class SignalHandler(object):
                 LOG.warn('A handler for %s failed!' % signame,
                          exc_info=sys.exc_info())
 
+
 _signals = None
 
 
@@ -82,6 +83,7 @@ def get_signal_name(n):
             if startswith('SIG') and not startswith('SIG_'):
                 _signals[v] = k
     return _signals.get(n, 'signal %d' % n)
+
 
 # The SignalHandler is actually a singleton.
 SignalHandler = SignalHandler()

@@ -106,7 +106,7 @@ class Functional(sandbox.Sandboxed):
         return ResponseWrapper(response, outstream, path)
 
 
-class ResponseWrapper:
+class ResponseWrapper(object):
     '''Decorates a response object with additional introspective methods.'''
 
     _bodyre = re.compile('\r\n\r\n(.*)', re.MULTILINE | re.DOTALL)

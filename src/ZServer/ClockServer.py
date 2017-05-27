@@ -28,48 +28,52 @@ from ZServer.PubCore import handle
 from ZServer.HTTPResponse import make_response
 from ZPublisher.HTTPRequest import HTTPRequest
 
+
 def timeslice(period, when=None, t=time.time):
     if when is None:
-        when =  t()
+        when = t()
     return when - (when % period)
 
-class LogHelper:
+
+class LogHelper(object):
     def __init__(self, logger):
         self.logger = logger
 
     def log(self, ip, msg, **kw):
         self.logger.log(ip + ' ' + msg)
 
-class DummyChannel:
+
+class DummyChannel(object):
     # we need this minimal do-almost-nothing channel class to appease medusa
     addr = ['127.0.0.1']
     closed = 1
 
     def __init__(self, server):
         self.server = server
-        
+
     def push_with_producer(self):
         pass
 
     def close_when_done(self):
         pass
-    
+
+
 class ClockServer(asyncore.dispatcher):
     # prototype request environment
-    _ENV = dict(REQUEST_METHOD = 'GET',
-                SERVER_PORT = 'Clock',
-                SERVER_NAME = 'Zope Clock Server',
-                SERVER_SOFTWARE = 'Zope',
-                SERVER_PROTOCOL = 'HTTP/1.0',
-                SCRIPT_NAME = '',
+    _ENV = dict(REQUEST_METHOD='GET',
+                SERVER_PORT='Clock',
+                SERVER_NAME='Zope Clock Server',
+                SERVER_SOFTWARE='Zope',
+                SERVER_PROTOCOL='HTTP/1.0',
+                SCRIPT_NAME='',
                 GATEWAY_INTERFACE='CGI/1.1',
-                REMOTE_ADDR = '0')
+                REMOTE_ADDR='0')
 
     # required by ZServer
-    SERVER_IDENT = 'Zope Clock' 
+    SERVER_IDENT = 'Zope Clock'
 
-    def __init__ (self, method, period=60, user=None, password=None,
-                  host=None, logger=None, handler=None):
+    def __init__(self, method, period=60, user=None, password=None,
+                 host=None, logger=None, handler=None):
         self.period = period
         self.method = method
 
@@ -111,7 +115,7 @@ class ClockServer(asyncore.dispatcher):
         env = self._ENV.copy()
         (path, params, query, fragment) = req.split_uri()
         if params:
-            path = path + params # undo medusa bug
+            path = path + params  # undo medusa bug
         while path and path[0] == '/':
             path = path[1:]
         if '%' in path:
@@ -119,19 +123,19 @@ class ClockServer(asyncore.dispatcher):
         if query:
             # ZPublisher doesn't want the leading '?'
             query = query[1:]
-        env['PATH_INFO']= '/' + path
-        env['PATH_TRANSLATED']= posixpath.normpath(
+        env['PATH_INFO'] = '/' + path
+        env['PATH_TRANSLATED'] = posixpath.normpath(
             posixpath.join(os.getcwd(), env['PATH_INFO']))
         if query:
             env['QUERY_STRING'] = query
-        env['channel.creation_time']=time.time()
+        env['channel.creation_time'] = time.time()
         for header in req.header:
-            key,value = header.split(":",1)
+            key, value = header.split(":", 1)
             key = key.upper()
             value = value.strip()
-            key = 'HTTP_%s' % ("_".join(key.split( "-")))
+            key = 'HTTP_%s' % ("_".join(key.split("-")))
             if value:
-                env[key]=value
+                env[key] = value
         return env
 
     def readable(self):
@@ -147,17 +151,14 @@ class ClockServer(asyncore.dispatcher):
     def handle_read(self):
         return True
 
-    def handle_write (self):
+    def handle_write(self):
         self.log_info('unexpected write event', 'warning')
         return True
 
     def writable(self):
         return False
 
-    def handle_error (self):      # don't close the socket on error
-        (file,fun,line), t, v, tbinfo = asyncore.compact_traceback()
+    def handle_error(self):      # don't close the socket on error
+        (file, fun, line), t, v, tbinfo = asyncore.compact_traceback()
         self.log_info('Problem in Clock (%s:%s %s)' % (t, v, tbinfo),
                       'error')
-
-
-

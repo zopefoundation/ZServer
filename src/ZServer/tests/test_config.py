@@ -25,6 +25,7 @@ import ZServer.datatypes
 
 TEMPFILENAME = tempfile.mktemp()
 
+
 class BaseTest(unittest.TestCase):
     schema = None
 
@@ -68,12 +69,12 @@ class BaseTest(unittest.TestCase):
             self.assertEqual(factory.port, 9300 + port)
 
 
-class WarningInterceptor:
+class WarningInterceptor(object):
 
     _old_stderr = None
     _our_stderr_stream = None
 
-    def _trap_warning_output( self ):
+    def _trap_warning_output(self):
 
         if self._old_stderr is not None:
             return
@@ -84,13 +85,14 @@ class WarningInterceptor:
         self._old_stderr = sys.stderr
         self._our_stderr_stream = sys.stderr = StringIO()
 
-    def _free_warning_output( self ):
+    def _free_warning_output(self):
 
         if self._old_stderr is None:
             return
 
         import sys
         sys.stderr = self._old_stderr
+
 
 class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
 
@@ -270,7 +272,7 @@ class MonitorServerConfigurationTestCase(BaseTest):
         from AccessControl import User
         self.__emergency_user = User.emergency_user
 
-    class FakeUser:
+    class FakeUser(object):
         def _getPassword(self):
             return "foo"
 
@@ -305,9 +307,3 @@ class MonitorServerConfigurationTestCase(BaseTest):
     def test_monitor_factory_with_emergency_user(self):
         self.setUser(False)
         self.create().close()
-
-
-def test_suite():
-    suite = unittest.makeSuite(ZServerConfigurationTestCase)
-    suite.addTest(unittest.makeSuite(MonitorServerConfigurationTestCase))
-    return suite

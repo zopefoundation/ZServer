@@ -318,6 +318,7 @@ def publish_module_standard(
 
     return status
 
+
 _l = allocate_lock()
 
 
@@ -389,7 +390,7 @@ def get_module_info(module_name, modules={},
         release()
 
 
-class DefaultTransactionsManager:
+class DefaultTransactionsManager(object):
 
     def begin(self):
         transaction.begin()

@@ -76,9 +76,9 @@ class ZServerHTTPResponse(HTTPResponse):
 
         # set 204 (no content) status if 200 and response is empty
         # and not streaming
-        if ('content-type' not in headers and 
-            'content-length' not in headers and 
-            not self._streaming and self.status == 200):
+        if ('content-type' not in headers and
+                'content-length' not in headers and
+                not self._streaming and self.status == 200):
             self.setStatus('nocontent')
 
         if self.status in (100, 101, 102, 204, 304):
@@ -89,12 +89,11 @@ class ZServerHTTPResponse(HTTPResponse):
                 del headers['content-length']
             if 'content-type' in headers:
                 del headers['content-type']
-        elif not headers.has_key('content-length') and not self._streaming:
+        elif 'content-length' not in headers and not self._streaming:
             self.setHeader('content-length', len(body))
 
         chunks = []
         append = chunks.append
-
 
         # status header must come first.
         append("HTTP/%s %d %s" % (self._http_version or '1.0',
@@ -106,20 +105,20 @@ class ZServerHTTPResponse(HTTPResponse):
 
         if self._http_version == '1.0':
             if self._http_connection == 'keep-alive':
-                self.setHeader('Connection','Keep-Alive')
+                self.setHeader('Connection', 'Keep-Alive')
             else:
-                self.setHeader('Connection','close')
+                self.setHeader('Connection', 'close')
 
         # Close the connection if we have been asked to.
         # Use chunking if streaming output.
         if self._http_version == '1.1':
             if self._http_connection == 'close':
-                self.setHeader('Connection','close')
-            elif (not self.headers.has_key('content-length') and 
+                self.setHeader('Connection', 'close')
+            elif ('content-length' not in self.headers and
                   self.http_chunk and self._streaming):
-                self.setHeader('Transfer-Encoding','chunked')
+                self.setHeader('Transfer-Encoding', 'chunked')
                 self._chunking = 1
-                    
+
         headers = headers.items()
         headers.extend(self.accumulated_headers)
 
@@ -128,18 +127,19 @@ class ZServerHTTPResponse(HTTPResponse):
                 # only change non-literal header names
                 key = "%s%s" % (key[:1].upper(), key[1:])
                 start = 0
-                l = key.find('-',start)
+                l = key.find('-', start)
                 while l >= start:
                     key = "%s-%s%s" % (key[:l],
-                                       key[l+1:l+2].upper(),
-                                       key[l+2:])
+                                       key[l + 1:l + 2].upper(),
+                                       key[l + 2:])
                     start = l + 1
                     l = key.find('-', start)
                 val = val.replace('\n\t', '\r\n\t')
             append("%s: %s" % (key, val))
+
         if self.cookies:
             chunks.extend(['%s: %s' % x for x in self._cookie_list()])
-            
+
         append('')
         append(body)
         return "\r\n".join(chunks)
@@ -148,7 +148,7 @@ class ZServerHTTPResponse(HTTPResponse):
     _templock = None
     _tempstart = 0
 
-    def write(self,data):
+    def write(self, data):
         """\
         Return data as a stream
 
@@ -164,8 +164,7 @@ class ZServerHTTPResponse(HTTPResponse):
 
         """
 
-
-        if type(data) != type(''):
+        if not isinstance(data, str):
             raise TypeError('Value must be a string')
 
         stdout = self.stdout
@@ -176,25 +175,28 @@ class ZServerHTTPResponse(HTTPResponse):
             l = self.headers.get('content-length', None)
             if l is not None:
                 try:
-                    if type(l) is type(''): l = int(l)
+                    if isinstance(l, str):
+                        l = int(l)
                     if l > 128000:
                         self._tempfile = tempfile.TemporaryFile()
                         self._templock = thread.allocate_lock()
-                except: pass
+                except Exception:
+                    pass
 
             self._streaming = 1
             stdout.write(str(self))
             self._wrote = 1
 
-        if not data: return
+        if not data:
+            return
 
         if self._chunking:
-            data = '%x\r\n%s\r\n' % (len(data),data)
+            data = '%x\r\n%s\r\n' % (len(data), data)
 
         l = len(data)
 
         t = self._tempfile
-        if t is None or l<200:
+        if t is None or l < 200:
             stdout.write(data)
         else:
             b = self._tempstart
@@ -206,7 +208,7 @@ class ZServerHTTPResponse(HTTPResponse):
             finally:
                 self._templock.release()
             self._tempstart = e
-            stdout.write(file_part_producer(t,self._templock,b,e), l)
+            stdout.write(file_part_producer(t, self._templock, b, e), l)
 
     _retried_response = None
 
@@ -227,7 +229,7 @@ class ZServerHTTPResponse(HTTPResponse):
         stdout.finish(self)
         stdout.close()
 
-        self.stdout = None # need to break cycle?
+        self.stdout = None  # need to break cycle?
         self._request = None
 
     def retry(self):
@@ -260,7 +262,7 @@ class ZServerHTTPResponse(HTTPResponse):
     def setBody(self, body, title='', is_error=0, **kw):
         """ Accept either a stream iterator or a string as the body """
         if IStreamIterator.providedBy(body):
-            assert(self.headers.has_key('content-length'))
+            assert('content-length' in self.headers)
             # wrap the iterator up in a producer that medusa can understand
             self._bodyproducer = iterator_producer(body)
             HTTPResponse.setBody(self, '', title, is_error, **kw)
@@ -268,7 +270,8 @@ class ZServerHTTPResponse(HTTPResponse):
         else:
             HTTPResponse.setBody(self, body, title, is_error, **kw)
 
-class ChannelPipe:
+
+class ChannelPipe(object):
     """Experimental pipe from ZPublisher to a ZServer Channel.
     Should only be used by one thread at a time. Note also that
     the channel will be being handled by another thread, thus
@@ -284,24 +287,26 @@ class ChannelPipe:
     def write(self, text, l=None):
         if self._channel.closed:
             return
-        if l is None: l = len(text)
+        if l is None:
+            l = len(text)
         self._bytes = self._bytes + l
-        self._channel.push(text,0)
+        self._channel.push(text, 0)
         Wakeup()
 
     def close(self):
         log('A', id(self._request),
-                '%s %s' % (self._request.reply_code, self._bytes))
+            '%s %s' % (self._request.reply_code, self._bytes))
         if not self._channel.closed:
             self._channel.push(LoggingProducer(self._request, self._bytes), 0)
             self._channel.push(CallbackProducer(self._channel.done), 0)
             self._channel.push(CallbackProducer(
-                lambda t=('E', id(self._request)): apply(log, t)), 0)
+                lambda t=('E', id(self._request)): log(*t)), 0)
             if self._shutdown:
                 self._channel.push(ShutdownProducer(), 0)
                 Wakeup()
             else:
-                if self._close: self._channel.push(None, 0)
+                if self._close:
+                    self._channel.push(None, 0)
             Wakeup()
         else:
             # channel closed too soon
@@ -314,17 +319,18 @@ class ChannelPipe:
             else:
                 Wakeup()
 
-        self._channel = None #need to break cycles?
+        self._channel = None  # need to break cycles?
         self._request = None
 
-    def flush(self): pass # yeah, whatever
+    def flush(self):
+        pass  # yeah, whatever
 
     def finish(self, response):
         if response._shutdownRequested():
             config.ZSERVER_EXIT_CODE = response._shutdown_flag
             self._shutdown = 1
-        if response.headers.get('connection','') == 'close' or \
-                response.headers.get('Connection','') == 'close':
+        if response.headers.get('connection', '') == 'close' or \
+                response.headers.get('Connection', '') == 'close':
             self._close = 1
         self._request.reply_code = response.status
 
@@ -337,10 +343,11 @@ class ChannelPipe:
         self.write(headers)
         self.write('\r\n\r\n')
         return self.write
-        
+
 
 is_proxying_match = re.compile(r'[^ ]* [^ \\]*:').match
-proxying_connection_re = re.compile ('Proxy-Connection: (.*)', re.IGNORECASE)
+proxying_connection_re = re.compile('Proxy-Connection: (.*)', re.IGNORECASE)
+
 
 def make_response(request, headers):
     "Simple http response factory"

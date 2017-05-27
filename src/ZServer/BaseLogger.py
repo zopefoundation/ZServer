@@ -19,7 +19,7 @@ the debug logger.
 import logging
 
 
-class BaseLogger:
+class BaseLogger(object):
     def __init__(self, name):
         self.logger = logging.getLogger(name)
         self.logger.propagate = False

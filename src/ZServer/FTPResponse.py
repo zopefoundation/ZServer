@@ -32,13 +32,13 @@ class FTPResponse(ZServerHTTPResponse):
         pass
 
     def setCookie(self, name, value, **kw):
-        self.cookies[name]=value
+        self.cookies[name] = value
 
     def appendCookie(self, name, value):
-        self.cookies[name]=self.cookies[name] + value
+        self.cookies[name] = self.cookies[name] + value
 
     def expireCookie(self, name, **kw):
-        if self.cookies.has_key(name):
+        if name in self.cookies:
             del self.cookies[name]
 
     def _cookie_list(self):
@@ -53,15 +53,16 @@ class FTPResponse(ZServerHTTPResponse):
     def getMessage(self):
         return getattr(self, '_message', '')
 
-class CallbackPipe:
+
+class CallbackPipe(object):
     """
     Sends response object to a callback. Doesn't write anything.
     The callback takes place in Medusa's thread, not the request thread.
     """
     def __init__(self, callback, args):
-        self._callback=callback
-        self._args=args
-        self._producers=[]
+        self._callback = callback
+        self._args = args
+        self._producers = []
 
     def close(self):
         pass
@@ -71,22 +72,23 @@ class CallbackPipe:
             self._producers.append(text)
 
     def finish(self, response):
-        self._response=response
-        Wakeup(self.apply) # move callback to medusas thread
+        self._response = response
+        Wakeup(self.apply)  # move callback to medusas thread
 
     def apply(self):
-        result=apply(self._callback, self._args+(self._response,))
+        result = self._callback(*(self._args + (self._response,)))
 
         # break cycles
-        self._callback=None
-        self._response=None
-        self._args=None
+        self._callback = None
+        self._response = None
+        self._args = None
 
         return result
 
+
 def make_response(channel, callback, *args):
     # XXX should this be the FTPResponse constructor instead?
-    r=FTPResponse(stdout=CallbackPipe(callback, args), stderr=StringIO())
-    r.setHeader('content-type','text/plain')
-    r.cookies=channel.cookies
+    r = FTPResponse(stdout=CallbackPipe(callback, args), stderr=StringIO())
+    r.setHeader('content-type', 'text/plain')
+    r.cookies = channel.cookies
     return r

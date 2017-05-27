@@ -26,10 +26,12 @@ class AccessLogger(BaseLogger):
         BaseLogger.__init__(self, 'access')
 
     def log(self, message):
-        if not self.logger.handlers: # don't log if we have no handlers
+        if not self.logger.handlers:
+            # don't log if we have no handlers
             return
         if message.endswith('\n'):
             message = message[:-1]
         self.logger.warn(message)
+
 
 access_logger = AccessLogger()

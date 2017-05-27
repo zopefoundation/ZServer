@@ -34,7 +34,6 @@ where:
 """
 
 import time
-import logging
 
 from ZServer.BaseLogger import BaseLogger
 

@@ -29,95 +29,104 @@ Note that ZServer can operate multiple PCGI servers.
 """
 from __future__ import absolute_import
 
+import asynchat
+import asyncore
+from cStringIO import StringIO
+from tempfile import TemporaryFile
+import socket
+import string
+import os
+import sys
+import time
+
 from ZServer.medusa import logger
-import asynchat, asyncore
 from ZServer.medusa.counter import counter
 from ZServer.medusa.http_server import compute_timezone_for_log
-from asyncore import compact_traceback
-
-import ZServer
 from ZServer import requestCloseOnExec
 
 from ZServer.PubCore import handle
 from ZServer.PubCore.ZEvent import Wakeup
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.HTTPRequest import HTTPRequest
-from ZServer.Producers import ShutdownProducer, LoggingProducer, CallbackProducer
+from ZServer.Producers import (
+    CallbackProducer,
+    LoggingProducer,
+    ShutdownProducer,
+)
 from ZServer import DebugLogger
-
 from ZServer.Zope2.Startup import config
 
-from cStringIO import StringIO
-from tempfile import TemporaryFile
-import socket, string, os, sys, time
+tz_for_log = compute_timezone_for_log()
 
-tz_for_log=compute_timezone_for_log()
 
 class ParseError(Exception):
     pass
+
 
 class PCGIChannel(asynchat.async_chat):
     """Processes a PCGI request by collecting the env and stdin and
     then passing them to ZPublisher. The result is wrapped in a
     producer and sent back."""
 
-    closed=0
+    closed = 0
 
-    def __init__(self,server,sock,addr):
+    def __init__(self, server, sock, addr):
         self.server = server
         self.addr = addr
-        asynchat.async_chat.__init__ (self, sock)
+        asynchat.async_chat.__init__(self, sock)
         requestCloseOnExec(sock)
-        self.env={}
-        self.data=StringIO()
+        self.env = {}
+        self.data = StringIO()
         self.set_terminator(10)
-        self.size=None
-        self.done=None
+        self.size = None
+        self.done = None
 
     def found_terminator(self):
         if self.size is None:
             # read the next size header
             # and prepare to read env or stdin
             self.data.seek(0)
-            self.size=string.atoi(self.data.read())
+            self.size = string.atoi(self.data.read())
             self.set_terminator(self.size)
-            if self.size==0:
+            if self.size == 0:
 
                 DebugLogger.log('I', id(self), 0)
 
                 self.set_terminator('\r\n')
-                self.data=StringIO()
+                self.data = StringIO()
                 self.send_response()
             elif self.size > 1048576:
-                self.data=TemporaryFile('w+b')
+                self.data = TemporaryFile('w+b')
             else:
-                self.data=StringIO()
+                self.data = StringIO()
         elif not self.env:
             # read env
-            self.size=None
+            self.size = None
             self.data.seek(0)
-            buff=self.data.read()
-            for line in string.split(buff,'\000'):
+            buff = self.data.read()
+            for line in string.split(buff, '\000'):
                 try:
-                    k,v = string.split(line,'=',1)
+                    k, v = string.split(line, '=', 1)
                     self.env[k] = v
                 except:
                     pass
             # Hack around broken IIS PATH_INFO
             # maybe, this should go in ZPublisher...
-            if self.env.has_key('SERVER_SOFTWARE') and \
+            if 'SERVER_SOFTWARE' in self.env and \
                     string.find(self.env['SERVER_SOFTWARE'],
-                    'Microsoft-IIS') != -1:
-                script = filter(None,string.split(
-                        string.strip(self.env['SCRIPT_NAME']),'/'))
-                path = filter(None,string.split(
-                        string.strip(self.env['PATH_INFO']),'/'))
-                self.env['PATH_INFO'] = '/' + string.join(path[len(script):],'/')
-            self.data=StringIO()
+                                'Microsoft-IIS') != -1:
+                script = filter(None, string.split(
+                    string.strip(self.env['SCRIPT_NAME']), '/'))
+                path = filter(None, string.split(
+                    string.strip(self.env['PATH_INFO']), '/'))
+                self.env['PATH_INFO'] = '/' + string.join(
+                    path[len(script):], '/')
+            self.data = StringIO()
 
-            DebugLogger.log('B', id(self),
+            DebugLogger.log(
+                'B', id(self),
                 '%s %s' % (self.env['REQUEST_METHOD'],
-                           self.env.get('PATH_INFO' ,'/')))
+                           self.env.get('PATH_INFO', '/')))
 
             # now read the next size header
             self.set_terminator(10)
@@ -134,9 +143,9 @@ class PCGIChannel(asynchat.async_chat):
         # create an output pipe by passing request to ZPublisher,
         # and requesting a callback of self.log with the module
         # name and PATH_INFO as an argument.
-        self.done=1
-        response=PCGIResponse(stdout=PCGIPipe(self), stderr=StringIO())
-        request=HTTPRequest(self.data, self.env, response)
+        self.done = 1
+        response = PCGIResponse(stdout=PCGIPipe(self), stderr=StringIO())
+        request = HTTPRequest(self.data, self.env, response)
         handle(self.server.module, request, response)
 
     def collect_incoming_data(self, data):
@@ -147,66 +156,70 @@ class PCGIChannel(asynchat.async_chat):
             return 1
 
     def log_request(self, bytes):
-        if self.env.has_key('HTTP_USER_AGENT'):
-            user_agent=self.env['HTTP_USER_AGENT']
+        if 'HTTP_USER_AGENT' in self.env:
+            user_agent = self.env['HTTP_USER_AGENT']
         else:
-            user_agent=''
-        if self.env.has_key('HTTP_REFERER'):
-            referer=self.env['HTTP_REFERER']
-        else:
-            referer=''
+            user_agent = ''
 
-        if self.env.has_key('PATH_INFO'):
-            path=self.env['PATH_INFO']
+        if 'HTTP_REFERER' in self.env:
+            referer = self.env['HTTP_REFERER']
         else:
-            path='%s/' % self.server.module
-        if self.env.has_key('REQUEST_METHOD'):
-            method=self.env['REQUEST_METHOD']
+            referer = ''
+
+        if 'PATH_INFO' in self.env:
+            path = self.env['PATH_INFO']
         else:
-            method="GET"
-        addr=self.addr
+            path = '%s/' % self.server.module
+
+        if 'REQUEST_METHOD' in self.env:
+            method = self.env['REQUEST_METHOD']
+        else:
+            method = "GET"
+
+        addr = self.addr
         if addr and isinstance(addr, tuple):
-            self.server.logger.log (
+            self.server.logger.log(
                 addr[0],
                 '%d - - [%s] "%s %s" %d %d "%s" "%s"' % (
                     addr[1],
-                    time.strftime (
-                    '%d/%b/%Y:%H:%M:%S ',
-                    time.localtime(time.time())
+                    time.strftime(
+                        '%d/%b/%Y:%H:%M:%S ',
+                        time.localtime(time.time())
                     ) + tz_for_log,
                     method, path, self.reply_code, bytes,
                     referer, user_agent
-                    )
                 )
+            )
         else:
-            self.server.logger.log (
+            self.server.logger.log(
                 '127.0.0.1',
                 ' - - [%s] "%s %s" %d %d "%s" "%s"' % (
-                    time.strftime (
-                    '%d/%b/%Y:%H:%M:%S ',
-                    time.gmtime(time.time())
+                    time.strftime(
+                        '%d/%b/%Y:%H:%M:%S ',
+                        time.gmtime(time.time())
                     ) + tz_for_log,
                     method, path, self.reply_code, bytes,
                     referer, user_agent
-                    )
                 )
+            )
 
     def push(self, producer, send=1):
         # this is thread-safe when send is false
         # note, that strings are not wrapped in
         # producers by default
         self.producer_fifo.push(producer)
-        if send: self.initiate_send()
+        if send:
+            self.initiate_send()
 
     def __repr__(self):
         return "<PCGIChannel at %x>" % id(self)
 
     def close(self):
-        self.closed=1
+        self.closed = 1
         while self.producer_fifo:
-            p=self.producer_fifo.first()
+            p = self.producer_fifo.first()
             if p is not None and not isinstance(p, basestring):
-                p.more() # free up resources held by producer
+                p.more()  # free up resources held by producer
             self.producer_fifo.pop()
         asyncore.dispatcher.close(self)
 
@@ -224,33 +237,33 @@ class PCGIServer(asyncore.dispatcher):
     you only want to accept connections from the localhost, set ip to
     '127.0.0.1'."""
 
-    channel_class=PCGIChannel
+    channel_class = PCGIChannel
 
-    def __init__ (self,
-            module='Main',
-            ip='127.0.0.1',
-            port=None,
-            socket_file=None,
-            pid_file=None,
-            pcgi_file=None,
-            resolver=None,
-            logger_object=None):
+    def __init__(self,
+                 module='Main',
+                 ip='127.0.0.1',
+                 port=None,
+                 socket_file=None,
+                 pid_file=None,
+                 pcgi_file=None,
+                 resolver=None,
+                 logger_object=None):
 
         self.ip = ip
         asyncore.dispatcher.__init__(self)
-        self.count=counter()
+        self.count = counter()
         if not logger_object:
-            logger_object = logger.file_logger (sys.stdout)
+            logger_object = logger.file_logger(sys.stdout)
         if resolver:
-            self.logger = logger.resolving_logger (resolver, logger_object)
+            self.logger = logger.resolving_logger(resolver, logger_object)
         else:
-            self.logger = logger.unresolving_logger (logger_object)
+            self.logger = logger.unresolving_logger(logger_object)
 
         # get configuration
-        self.module=module
-        self.port=port
-        self.pid_file=pid_file
-        self.socket_file=socket_file
+        self.module = module
+        self.port = port
+        self.pid_file = pid_file
+        self.socket_file = socket_file
         if pcgi_file is not None:
             self.read_info(pcgi_file)
 
@@ -270,7 +283,7 @@ class PCGIServer(asyncore.dispatcher):
             self.log_info(
                 'PCGI Server started at %s\n'
                 '\tInet socket port: %s' % (time.ctime(time.time()), self.port)
-                )
+            )
         else:
             try:
                 os.unlink(self.socket_file)
@@ -280,46 +293,47 @@ class PCGIServer(asyncore.dispatcher):
             self.set_reuse_addr()
             self.bind(self.socket_file)
             try:
-                os.chmod(self.socket_file,0777)
+                os.chmod(self.socket_file, 0o777)
             except os.error:
                 pass
             self.log_info(
                 'PCGI Server started at %s\n'
-                '\tUnix socket: %s' % (time.ctime(time.time()), self.socket_file)
-                )
+                '\tUnix socket: %s' % (
+                    time.ctime(time.time()), self.socket_file)
+            )
         self.listen(256)
 
     def create_socket(self, family, type):
         asyncore.dispatcher.create_socket(self, family, type)
         requestCloseOnExec(self.socket)
 
-    def read_info(self,info_file):
+    def read_info(self, info_file):
         "read configuration information from a PCGI info file"
-        lines=open(info_file).readlines()
-        directives={}
+        lines = open(info_file).readlines()
+        directives = {}
         try:
             for line in lines:
-                line=string.strip(line)
-                if not len(line) or line[0]=='#':
+                line = string.strip(line)
+                if not len(line) or line[0] == '#':
                     continue
-                k,v=string.split(line,'=',1)
-                directives[string.strip(k)]=string.strip(v)
-        except:
-            raise ParseError, 'Error parsing PCGI info file'
+                k, v = string.split(line, '=', 1)
+                directives[string.strip(k)] = string.strip(v)
+        except Exception:
+            raise ParseError('Error parsing PCGI info file')
 
-        self.pid_file=directives.get('PCGI_PID_FILE',None)
-        self.socket_file=directives.get('PCGI_SOCKET_FILE',None)
-        if directives.has_key('PCGI_PORT'):
-            self.port=string.atoi(directives['PCGI_PORT'])
-        if directives.has_key('PCGI_MODULE'):
-            self.module=directives['PCGI_MODULE']
-        elif directives.has_key('PCGI_MODULE_PATH'):
-            path=directives['PCGI_MODULE_PATH']
-            path,module=os.path.split(path)
-            module,ext=os.path.splitext(module)
-            self.module=module
+        self.pid_file = directives.get('PCGI_PID_FILE', None)
+        self.socket_file = directives.get('PCGI_SOCKET_FILE', None)
+        if 'PCGI_PORT' in directives:
+            self.port = string.atoi(directives['PCGI_PORT'])
+        if 'PCGI_MODULE' in directives:
+            self.module = directives['PCGI_MODULE']
+        elif 'PCGI_MODULE_PATH' in directives:
+            path = directives['PCGI_MODULE_PATH']
+            path, module = os.path.split(path)
+            module, ext = os.path.splitext(module)
+            self.module = module
 
-    def handle_accept (self):
+    def handle_accept(self):
         self.count.increment()
         try:
             conn, addr = self.accept()
@@ -332,35 +346,35 @@ class PCGIServer(asyncore.dispatcher):
         from ZServer.Zope2.Startup.config import ZSERVER_CONNECTION_LIMIT
         return len(asyncore.socket_map) < ZSERVER_CONNECTION_LIMIT
 
-    def writable (self):
+    def writable(self):
         return 0
 
     def listen(self, num):
         # override asyncore limits for nt's listen queue size
         self.accepting = 1
-        return self.socket.listen (num)
+        return self.socket.listen(num)
 
 
 class PCGIResponse(HTTPResponse):
 
     def write(self, data):
-        if type(data) != type(''):
+        if not isinstance(data, str):
             raise TypeError('Value must be a string')
 
         if not self._wrote:
             self.stdout.write(str(self))
-            self._wrote=1
+            self._wrote = 1
         self.stdout.write(data)
 
     def _finish(self):
         self.stdout.finish(self)
         self.stdout.close()
 
-        self.stdout=None
-        self._request=None
+        self.stdout = None
+        self._request = None
 
 
-class PCGIPipe:
+class PCGIPipe(object):
     """
     Formats a HTTP response in PCGI format
 
@@ -372,23 +386,27 @@ class PCGIPipe:
     Note that this implementation never sends STDERR
     """
     def __init__(self, channel):
-        self._channel=channel
-        self._data=StringIO()
-        self._shutdown=0
+        self._channel = channel
+        self._data = StringIO()
+        self._shutdown = 0
 
-    def write(self,text):
+    def write(self, text):
         self._data.write(text)
 
     def close(self):
         if not self._channel.closed:
-            data=self._data.getvalue()
-            l=len(data)
-            DebugLogger.log('A', id(self._channel),
+            data = self._data.getvalue()
+            l = len(data)
+            DebugLogger.log(
+                'A', id(self._channel),
                 '%s %s' % (self._channel.reply_code, l))
-            self._channel.push('%010d%s%010d' % (l, data, 0), 0)
-            self._channel.push(LoggingProducer(self._channel, l, 'log_request'), 0)
-            self._channel.push(CallbackProducer(
-                lambda t=('E', id(self._channel)): apply(DebugLogger.log,t)), 0)
+            self._channel.push(
+                '%010d%s%010d' % (l, data, 0), 0)
+            self._channel.push(
+                LoggingProducer(self._channel, l, 'log_request'), 0)
+            self._channel.push(
+                CallbackProducer(
+                    lambda t=('E', id(self._channel)): DebugLogger(*t)), 0)
 
             if self._shutdown:
                 try:
@@ -401,11 +419,11 @@ class PCGIPipe:
             else:
                 self._channel.push(None, 0)
                 Wakeup()
-        self._data=None
-        self._channel=None
+        self._data = None
+        self._channel = None
 
     def finish(self, response):
         if response._shutdownRequested():
             config.ZSERVER_EXIT_CODE = response._shutdown_flag
             self._shutdown = 1
-        self._channel.reply_code=response.status
+        self._channel.reply_code = response.status

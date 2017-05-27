@@ -1,47 +1,47 @@
 # -*- Mode: Python; tab-width: 4 -*-
 
-# It is tempting to add an __int__ method to this class, but it's not
-# a good idea.  This class tries to gracefully handle integer
-# overflow, and to hide this detail from both the programmer and the
-# user.  Note that the __str__ method can be relied on for printing out
+# This class tries to gracefully handle integer overflow,
+# and to hide this detail from both the programmer and the
+# user. Note that the __str__ method can be relied on for printing out
 # the value of a counter:
 #
-# >>> print 'Total Client: %s' % self.total_clients
+# >>> print('Total Client: %s' % self.total_clients)
 #
 # If you need to do arithmetic with the value, then use the 'as_long'
 # method, the use of long arithmetic is a reminder that the counter
 # will overflow.
 
-class counter:
+
+class counter(object):
     "general-purpose counter"
-    
-    def __init__ (self, initial_value=0):
+
+    def __init__(self, initial_value=0):
         self.value = initial_value
-        
-    def increment (self, delta=1):
+
+    def increment(self, delta=1):
         result = self.value
         try:
             self.value = self.value + delta
         except OverflowError:
-            self.value = long(self.value) + delta
+            self.value = int(self.value) + delta
         return result
-        
-    def decrement (self, delta=1):
+
+    def decrement(self, delta=1):
         result = self.value
         try:
             self.value = self.value - delta
         except OverflowError:
-            self.value = long(self.value) - delta
+            self.value = int(self.value) - delta
         return result
-        
-    def as_long (self):
-        return long(self.value)
-        
-    def __nonzero__ (self):
+
+    def as_long(self):
+        return int(self.value)
+
+    def __nonzero__(self):
         return self.value != 0
-        
-    def __repr__ (self):
+
+    def __repr__(self):
         return '<counter value=%s at %x>' % (self.value, id(self))
-        
-    def __str__ (self):
-        return str(long(self.value))[:-1]
+
+    def __str__(self):
+        return str(int(self.value))[:-1]

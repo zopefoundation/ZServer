@@ -7,7 +7,7 @@ from ZPublisher import Retry
 from ZODB.POSException import ConflictError
 
 
-class Tracer:
+class Tracer(object):
     """Trace used to record pathway taken through the publisher
     machinery. And provide framework for spewing out exceptions at
     just the right time.
@@ -37,10 +37,11 @@ class Tracer:
             self.append('raising %s from %s' % (exceptionShortName, context))
             raise exception
 
+
 tracer = Tracer()
 
 
-class TransactionsManager:
+class TransactionsManager(object):
     """Mock TransactionManager.
     """
 
@@ -53,6 +54,7 @@ class TransactionsManager:
     def commit(self):
         tracer.append('commit')
         tracer.possiblyRaiseException('commit')
+
 
 zpublisher_transactions_manager = TransactionsManager()
 
@@ -70,7 +72,7 @@ def zpublisher_exception_hook(published, request, t, v, traceback):
     return 'zpublisher_exception_hook'
 
 
-class Object:
+class Object(object):
     """Mock object for traversing to.
     """
 
@@ -80,7 +82,7 @@ class Object:
         return '__call__'
 
 
-class Response:
+class Response(object):
     """Mock Response to replace ZPublisher.HTTPResponse.HTTPResponse.
     """
 
@@ -89,7 +91,7 @@ class Response:
 
 
 @implementer(IBrowserRequest)
-class Request:
+class Request(object):
     """Mock Request to replace ZPublisher.HTTPRequest.HTTPRequest.
     """
 
@@ -133,6 +135,7 @@ class RequestWithSkinCheck(Request):
         else:
             tracer.exceptions['__call__'] = [ValueError]
             return Object()
+
 
 module_name = __name__
 after_list = [None]
@@ -334,7 +337,7 @@ def testPublisher():
     pass
 
 
-class ObjectNotFound:
+class ObjectNotFound(object):
     """Mock object for traversing to.
     """
 

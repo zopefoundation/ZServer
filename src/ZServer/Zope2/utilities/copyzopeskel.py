@@ -246,5 +246,6 @@ def usage(stream, msg=None):
     program = os.path.basename(sys.argv[0])
     stream.write(__doc__ % {"program": program})
 
+
 if __name__ == '__main__':
     main()

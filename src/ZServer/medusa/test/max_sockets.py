@@ -1,4 +1,3 @@
-
 import socket
 import select
 
@@ -8,43 +7,46 @@ import select
 # 3) max we can listen on
 # 4) max we can connect
 
+
 def max_server_sockets():
     sl = []
     while 1:
         try:
-            s = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-            s.bind (('',0))
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind(('', 0))
             s.listen(5)
-            sl.append (s)
-        except:
+            sl.append(s)
+        except Exception:
             break
     num = len(sl)
     for s in sl:
         s.close()
     del sl
     return num
-    
+
+
 def max_client_sockets():
         # make a server socket
-    server = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-    server.bind (('', 9999))
-    server.listen (5)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('', 9999))
+    server.listen(5)
     sl = []
     while 1:
         try:
-            s = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-            s.connect (('', 9999))
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(('', 9999))
             conn, addr = server.accept()
-            sl.append ((s,conn))
-        except:
+            sl.append((s, conn))
+        except Exception:
             break
     num = len(sl)
-    for s,c in sl:
+    for s, c in sl:
         s.close()
         c.close()
     del sl
     return num
-    
+
+
 def max_select_sockets():
     sl = []
     while 1:
@@ -52,12 +54,12 @@ def max_select_sockets():
             num = len(sl)
             for i in range(1 + int(len(sl) * 0.05)):
                     # Increase exponentially.
-                s = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-                s.bind (('',0))
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.bind(('', 0))
                 s.listen(5)
-                sl.append (s)
-            select.select(sl,[],[],0)
-        except:
+                sl.append(s)
+            select.select(sl, [], [], 0)
+        except Exception:
             break
     for s in sl:
         s.close()
