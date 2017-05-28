@@ -289,8 +289,8 @@ if os.name == 'posix':
                 #
                 #       def handle_read (self):
                 #           if len (self.data) < self.buffer_size:
-                #               self.data = self.data + self.fd.read (self.buffer_size)
-                #           #print '%s.handle_read() => len(self.data) == %d' % (self, len(self.data))
+                #               self.data = self.data + self.fd.read(
+                #                   self.buffer_size)
                 #
                 #       def handle_expt (self):
                 #           #print '%s.handle_expt()' % self

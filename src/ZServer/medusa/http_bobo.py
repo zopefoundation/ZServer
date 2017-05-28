@@ -49,7 +49,7 @@ class bobo_extension(object):
         env['SERVER_NAME'] = channel.server.server_name
         env['SCRIPT_NAME'] = module_name
         env['QUERY_STRING'] = query
-        env['PATH_INFO'] = string.join(path_parts[1:],'/')
+        env['PATH_INFO'] = string.join(path_parts[1:], '/')
 
         # this should really be done with with a real producer.  just
         # have to make sure it can handle all of the file object api.
