@@ -3,8 +3,10 @@ sudo: false
 python:
     - 2.7
 install:
-    - python bootstrap.py
-    - bin/buildout
+    - pip install -U setuptools
+    - pip install zc.buildout
+    - buildout bootstrap
+    - buildout
 script:
     - bin/test -v1
 notifications:
