@@ -21,12 +21,9 @@ from urlparse import urlparse
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from six import reraise
-from zExceptions import (
-    HTTPOk,
-    HTTPRedirection,
-    Redirect,
-)
+from zExceptions import Redirect
 from zope.event import notify
+from zope.globalrequest import setRequest, clearRequest
 from zope.publisher.interfaces import ISkinnable
 from zope.publisher.interfaces.browser import IBrowserPage
 from zope.publisher.skinnable import setDefaultSkin
@@ -140,18 +137,13 @@ def publish(request, module_name, after_list, debug=0,
         if transactions_manager:
             recordMetaData(object, request)
 
-        ok_exception = None
-        try:
-            result = mapply(object, request.args, request,
-                            call_object, 1,
-                            missing_name,
-                            dont_publish_class,
-                            request, bind=1)
-        except (HTTPOk, HTTPRedirection) as exc:
-            ok_exception = exc
-        else:
-            if result is not response:
-                response.setBody(result)
+        result = mapply(object, request.args, request,
+                        call_object, 1,
+                        missing_name,
+                        dont_publish_class,
+                        request, bind=1)
+        if result is not response:
+            response.setBody(result)
 
         notify(pubevents.PubBeforeCommit(request))
 
@@ -160,9 +152,6 @@ def publish(request, module_name, after_list, debug=0,
 
         notify(pubevents.PubSuccess(request))
         endInteraction()
-
-        if ok_exception:
-            raise ok_exception
 
         return response
     except:
@@ -261,6 +250,8 @@ def publish_module_standard(
             if request is None:
                 request = Request(stdin, environ, response)
 
+            setRequest(request)
+
             # make sure that the request we hand over has the
             # default layer/skin set on it; subsequent code that
             # wants to look up views will likely depend on it
@@ -298,6 +289,7 @@ def publish_module_standard(
     finally:
         if request is not None:
             request.close()
+            clearRequest()
 
     if must_die:
         # Try to turn exception value into an exit code.
