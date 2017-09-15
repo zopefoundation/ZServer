@@ -60,7 +60,7 @@ setup(
         'zope.processlifetime',
         'zope.schema',
         'zope.testing',
-        'Zope2 >= 4.0a5',
+        'Zope >= 4.0b1',
     ],
     include_package_data=True,
     zip_safe=False,
