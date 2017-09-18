@@ -1,4 +1,4 @@
 Overview
 ========
 
-Zope 2 ZServer.
+Zope ZServer.

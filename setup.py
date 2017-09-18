@@ -14,14 +14,14 @@
 
 from setuptools import setup, find_packages
 
-__version__ = '4.0a3.dev0'
+version = '4.0a3.dev0'
 
 setup(
     name='ZServer',
-    version=__version__,
+    version=version,
     url='https://pypi.python.org/pypi/ZServer',
     license='ZPL 2.1',
-    description="Zope 2 ZServer.",
+    description="Zope ZServer.",
     author='Zope Foundation and Contributors',
     author_email='zope-dev@zope.org',
     long_description=(open('README.rst').read() + '\n' +
