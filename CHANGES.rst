@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0a3 (unreleased)
+4.0b1 (2017-09-18)
 ------------------
 
 - Update code to Zope 4.0b1.
