@@ -4,7 +4,7 @@ Changelog
 4.0b2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Move ``Products.SiteAccess`` back to `Zope`.
 
 
 4.0b1 (2017-09-18)
