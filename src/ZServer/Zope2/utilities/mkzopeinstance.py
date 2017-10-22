@@ -32,6 +32,9 @@ import sys
 
 import copyzopeskel
 
+from six.moves import input
+
+
 if sys.version_info > (3, ):
     raw_input = input
 
@@ -155,7 +158,7 @@ def get_skeltarget():
     print('files, etc.')
     print
     while 1:
-        skeltarget = raw_input("Directory: ").strip()
+        skeltarget = input("Directory: ").strip()
         if skeltarget == '':
             print('You must specify a directory')
             continue
@@ -170,7 +173,7 @@ def get_inituser():
     print('These will be the credentials you use to initially manage')
     print('your new Zope instance.')
     print
-    user = raw_input("Username: ").strip()
+    user = input("Username: ").strip()
     if user == '':
         return None, None
     while 1:

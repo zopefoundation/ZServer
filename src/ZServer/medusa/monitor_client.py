@@ -11,6 +11,9 @@ import sys
 import os
 
 
+from six.moves import input
+
+
 class stdin_channel(asyncore.file_dispatcher):
     def handle_read(self):
         data = self.recv(512)
@@ -109,7 +112,7 @@ if __name__ == '__main__':
     sys.stderr.flush()
     try:
         os.system('stty -echo')
-        p = raw_input()
+        p = input()
         print
     finally:
         os.system('stty echo')

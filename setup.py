@@ -41,6 +41,7 @@ setup(
     ],
     install_requires=[
         'setuptools',
+        'six',
         'AccessControl',
         'Acquisition',
         'ExtensionClass',

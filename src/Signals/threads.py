@@ -2,7 +2,8 @@ import sys
 import thread
 import traceback
 import time
-from cStringIO import StringIO
+
+from six.moves import cStringIO as StringIO
 
 
 def dump_threads():

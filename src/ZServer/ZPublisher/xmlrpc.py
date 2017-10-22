@@ -22,16 +22,16 @@ information about XML-RPC and Zope.
 import re
 import sys
 import types
-import xmlrpclib
 
 from App.config import getConfiguration
+from six.moves import xmlrpc_client
 from zExceptions import Unauthorized
 from ZODB.POSException import ConflictError
 
 # Make DateTime.DateTime marshallable via XML-RPC
 # http://www.zope.org/Collectors/Zope/2109
 from DateTime.DateTime import DateTime
-WRAPPERS = xmlrpclib.WRAPPERS + (DateTime, )
+WRAPPERS = xmlrpc_client.WRAPPERS + (DateTime, )
 
 
 def dump_instance(self, value, write):
@@ -50,8 +50,8 @@ def dump_instance(self, value, write):
         self.dump_struct(value, write)
 
 
-xmlrpclib.Marshaller.dispatch[types.InstanceType] = dump_instance
-xmlrpclib.Marshaller.dispatch[DateTime] = dump_instance
+xmlrpc_client.Marshaller.dispatch[types.InstanceType] = dump_instance
+xmlrpc_client.Marshaller.dispatch[DateTime] = dump_instance
 
 
 def parse_input(data):
@@ -75,7 +75,7 @@ def parse_input(data):
     # the function should return:
     #
     #     ('examples.getStateName', (41,))
-    params, method = xmlrpclib.loads(data)
+    params, method = xmlrpc_client.loads(data)
     # Translate '.' to '/' in meth to represent object traversal.
     method = method.replace('.', '/')
     return method, params
@@ -135,18 +135,18 @@ class Response(object):
         return delattr(self._real, name)
 
     def setBody(self, body, title='', is_error=0, bogus_str_search=None):
-        if isinstance(body, xmlrpclib.Fault):
+        if isinstance(body, xmlrpc_client.Fault):
             # Convert Fault object to XML-RPC response.
-            body = xmlrpclib.dumps(body, methodresponse=1, allow_none=True)
+            body = xmlrpc_client.dumps(body, methodresponse=1, allow_none=True)
         else:
             # Marshall our body as an XML-RPC response. Strings will be sent
             # strings, integers as integers, etc. We do *not* convert
             # everything to a string first.
             # Previously this had special handling if the response
-            # was a Python None. This is now patched in xmlrpclib to
+            # was a Python None. This is now patched in xmlrpc_client to
             # allow Nones nested inside data structures too.
             try:
-                body = xmlrpclib.dumps(
+                body = xmlrpc_client.dumps(
                     (body,), methodresponse=1, allow_none=True)
             except ConflictError:
                 raise
@@ -174,7 +174,7 @@ class Response(object):
             return self._real.exception(fatal=fatal, info=info)
 
         # Create an appropriate Fault object. Containing error information
-        Fault = xmlrpclib.Fault
+        Fault = xmlrpc_client.Fault
         f = None
         try:
             # Strip HTML tags from the error value

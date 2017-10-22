@@ -1,7 +1,9 @@
 import unittest
-import xmlrpclib
 
 from DateTime import DateTime
+
+
+from six.moves import xmlrpc_client
 
 
 class FauxResponse(object):
@@ -44,7 +46,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         body_str = faux._body
         self.assertEqual(type(body_str), type(''))
 
-        as_set, method = xmlrpclib.loads(body_str)
+        as_set, method = xmlrpc_client.loads(body_str)
         as_set = as_set[0]
 
         self.assertEqual(method, None)
@@ -57,7 +59,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         self.assert_(data[0]['public'] is None)
 
     def test_instance(self):
@@ -67,7 +69,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]
         self.assertEqual(data, {'public': 'def'})
 
@@ -79,7 +81,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]['public']
         self.assertEqual(data, {'public': 'def'})
 
@@ -90,7 +92,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]['public']['public']
         self.assertEqual(data, {'public': 'def'})
 
@@ -102,7 +104,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0][0]
         self.assertEqual(data, {'public': 'def'})
 
@@ -114,7 +116,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]['faux']
         self.assertEqual(data, {'public': 'def'})
 
@@ -124,9 +126,9 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]
-        self.assertTrue(isinstance(data, xmlrpclib.DateTime))
+        self.assertTrue(isinstance(data, xmlrpc_client.DateTime))
         self.assertEqual(data.value, u'2006-05-24T07:00:00+00:00')
 
     def test_zopedatetimeattribute(self):
@@ -135,9 +137,9 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]['public']
-        self.assertTrue(isinstance(data, xmlrpclib.DateTime))
+        self.assertTrue(isinstance(data, xmlrpc_client.DateTime))
         self.assertEqual(data.value, u'2006-05-24T07:00:00+00:00')
 
     def test_zopedatetimeattribute_recursive(self):
@@ -147,9 +149,9 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]['public']['public']
-        self.assertTrue(isinstance(data, xmlrpclib.DateTime))
+        self.assertTrue(isinstance(data, xmlrpc_client.DateTime))
         self.assertEqual(data.value, u'2006-05-24T07:00:00+00:00')
 
     def test_zopedatetimeinstance_in_list(self):
@@ -158,9 +160,9 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0][0]
-        self.assertTrue(isinstance(data, xmlrpclib.DateTime))
+        self.assertTrue(isinstance(data, xmlrpc_client.DateTime))
         self.assertEqual(data.value, u'2006-05-24T07:00:00+00:00')
 
     def test_zopedatetimeinstance_in_dict(self):
@@ -169,9 +171,9 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]['date']
-        self.assertTrue(isinstance(data, xmlrpclib.DateTime))
+        self.assertTrue(isinstance(data, xmlrpc_client.DateTime))
         self.assertEqual(data.value, u'2006-05-24T07:00:00+00:00')
 
     def test_functionattribute(self):
@@ -184,7 +186,7 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        func = xmlrpclib.loads(faux._body)
+        func = xmlrpc_client.loads(faux._body)
         self.assertEqual(func, (({'public': {}},), None))
 
     def test_emptystringattribute(self):
@@ -195,6 +197,6 @@ class XMLRPCResponseTests(unittest.TestCase):
         faux = FauxResponse()
         response = self._makeOne(faux)
         response.setBody(body)
-        data, method = xmlrpclib.loads(faux._body)
+        data, method = xmlrpc_client.loads(faux._body)
         data = data[0]
         self.assertEqual(data, {'': True})

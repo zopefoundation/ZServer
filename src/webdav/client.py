@@ -5,22 +5,23 @@ import re
 import sys
 import time
 import types
-import httplib
 import mimetools
 from types import FileType
 from mimetypes import guess_type
 from base64 import encodestring
 from App.Common import rfc1123_date
-from cStringIO import StringIO
 from random import random
-from urllib import quote
+
+from six.moves import cStringIO as StringIO
+from six.moves import http_client
+from six.moves.urllib.parse import quote
 
 
 class NotAvailable(Exception):
     pass
 
 
-class HTTP(httplib.HTTP):
+class HTTP(http_client.HTTP):
     # A revised version of the HTTP class that can do basic
     # HTTP 1.1 connections, and also compensates for a bug
     # that occurs on some platforms in 1.5 and 1.5.1 with

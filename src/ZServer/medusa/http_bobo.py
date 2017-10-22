@@ -1,8 +1,10 @@
 # -*- Mode: Python; tab-width: 4 -*-
 
 import string
-import StringIO
 import regex
+
+import six
+
 
 RCS_ID = '$Id$'
 VERSION_STRING = string.split(RCS_ID)[2]
@@ -53,9 +55,9 @@ class bobo_extension(object):
 
         # this should really be done with with a real producer.  just
         # have to make sure it can handle all of the file object api.
-        sin = StringIO.StringIO('')
-        sout = StringIO.StringIO()
-        serr = StringIO.StringIO()
+        sin = six.StringIO('')
+        sout = six.StringIO()
+        serr = six.StringIO()
 
         cgi_module_publisher.publish_module(
             module_name,

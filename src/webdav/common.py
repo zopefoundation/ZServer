@@ -13,9 +13,9 @@
 """Commonly used functions for WebDAV support modules."""
 
 import re
-import urllib
 
 from Acquisition import aq_base, aq_parent
+from six.moves import urllib
 from zExceptions import (
     HTTPConflict,
     HTTPLocked,

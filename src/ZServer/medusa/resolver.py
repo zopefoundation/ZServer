@@ -13,6 +13,9 @@ import sys
 import time
 from counter import counter
 
+from six.moves import reduce
+
+
 RCS_ID = '$Id$'
 VERSION = '0.0'
 

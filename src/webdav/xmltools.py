@@ -31,11 +31,13 @@ TODO:
 
 """
 
-from StringIO import StringIO
 from xml.dom import minidom
 from xml.sax.expatreader import ExpatParser
 from xml.sax.saxutils import escape as _escape
 from xml.sax.saxutils import unescape as _unescape
+
+from six import StringIO
+
 
 escape_entities = {'"': '&quot;',
                    "'": '&apos;',

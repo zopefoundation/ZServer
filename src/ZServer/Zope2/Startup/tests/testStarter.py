@@ -14,7 +14,6 @@
 
 from __future__ import absolute_import
 
-import cStringIO
 import errno
 import logging
 import os
@@ -26,6 +25,7 @@ import unittest
 
 import ZConfig
 from ZConfig.components.logger.tests.test_logger import LoggingTestHelper
+from six import moves
 
 from App.config import getConfiguration, setConfiguration
 import Products
@@ -86,7 +86,7 @@ class BaseTestCase(LoggingTestHelper):
         # of the directory is checked.  This handles this in a
         # platform-independent way.
         schema = self.schema
-        sio = cStringIO.StringIO(
+        sio = moves.cStringIO(
             text.replace("<<INSTANCE_HOME>>", TEMPNAME))
         try:
             os.mkdir(TEMPNAME)

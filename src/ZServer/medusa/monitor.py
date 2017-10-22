@@ -13,6 +13,9 @@ import time
 from .counter import counter
 from . import producers
 
+from six.moves import input
+
+
 RCS_ID = '$Id$'
 VERSION = '0.0'
 
@@ -327,7 +330,7 @@ if __name__ == '__main__':
     if '-s' in sys.argv:
         sys.argv.remove('-s')
         print 'Enter password: ',
-        password = raw_input()
+        password = input()
     else:
         password = None
 

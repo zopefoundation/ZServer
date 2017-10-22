@@ -19,7 +19,6 @@ and logging duties.
 from __future__ import absolute_import
 
 import asyncore
-from cStringIO import StringIO
 import re
 import tempfile
 import thread
@@ -43,6 +42,9 @@ from ZServer.Producers import file_close_producer
 from ZServer.Producers import iterator_producer
 from ZServer.DebugLogger import log
 from ZServer.Zope2.Startup import config
+
+
+from six.moves import cStringIO as StringIO
 
 
 class ZServerHTTPResponse(HTTPResponse):

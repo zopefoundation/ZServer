@@ -4,7 +4,7 @@ Changelog
 4.0b2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Imports are compatible with Python3
 
 
 4.0b1 (2017-09-18)

@@ -16,8 +16,10 @@ Response class for the FTP Server.
 
 from ZServer.HTTPResponse import ZServerHTTPResponse
 from PubCore.ZEvent import Wakeup
-from cStringIO import StringIO
 import marshal
+
+
+from six.moves import cStringIO as StringIO
 
 
 class FTPResponse(ZServerHTTPResponse):

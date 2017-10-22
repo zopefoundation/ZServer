@@ -31,7 +31,6 @@ from __future__ import absolute_import
 
 import asynchat
 import asyncore
-from cStringIO import StringIO
 from tempfile import TemporaryFile
 import socket
 import string
@@ -55,6 +54,9 @@ from ZServer.Producers import (
 )
 from ZServer import DebugLogger
 from ZServer.Zope2.Startup import config
+
+from six.moves import cStringIO as StringIO
+
 
 tz_for_log = compute_timezone_for_log()
 

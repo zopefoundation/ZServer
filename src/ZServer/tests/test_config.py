@@ -14,13 +14,15 @@
 
 """Test the ZServer configuration machinery."""
 
-import cStringIO as StringIO
 import os
 import tempfile
 import unittest
 
 import ZConfig
 import ZServer.datatypes
+
+
+from six import moves
 
 
 TEMPFILENAME = tempfile.mktemp()
@@ -31,7 +33,7 @@ class BaseTest(unittest.TestCase):
 
     def get_schema(self):
         if self.schema is None:
-            sio = StringIO.StringIO("""
+            sio = moves.cStringIO("""
             <schema>
               <import package='ZServer'/>
               <multisection name='*'
@@ -45,7 +47,7 @@ class BaseTest(unittest.TestCase):
 
     def load_factory(self, text):
         conf, xxx = ZConfig.loadConfigFile(self.get_schema(),
-                                           StringIO.StringIO(text))
+                                           moves.cStringIO(text))
         self.assertEqual(len(conf.servers), 1)
         return conf.servers[0]
 

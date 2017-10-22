@@ -16,10 +16,10 @@ import os
 import sys
 from thread import allocate_lock
 import transaction
-from urlparse import urlparse
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
+from six.moves.urllib.parse import urlparse
 from six import reraise
 from zExceptions import Redirect
 from zope.event import notify

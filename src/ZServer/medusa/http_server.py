@@ -13,12 +13,12 @@ import socket
 import string
 import sys
 import time
-from urllib import unquote
 
 from .counter import counter
 from . import http_date
 from . import logger
 from . import producers
+from six.moves.urllib.parse import unquote
 
 RCS_ID = '$Id$'
 VERSION_STRING = '0.0'

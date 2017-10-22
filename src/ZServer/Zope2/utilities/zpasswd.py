@@ -45,6 +45,9 @@ import random
 import sha
 import sys
 
+from six.moves import input
+
+
 try:
     from crypt import crypt
 except ImportError:
@@ -194,7 +197,7 @@ def main():
     else:
         # No command line args, so prompt
         while 1:
-            username = raw_input("Username: ")
+            username = input("Username: ")
             if username != '':
                 break
 
@@ -208,14 +211,14 @@ SHA - SHA-1 hashed password (default)
 CRYPT - UNIX-style crypt password
 CLEARTEXT - no protection
 """)
-            encoding = raw_input("Encoding: ")
+            encoding = input("Encoding: ")
             if encoding == '':
                 encoding = 'SHA'
                 break
             if encoding.upper() in ['SHA', 'CRYPT', 'CLEARTEXT']:
                 break
 
-        domains = raw_input("Domain restrictions: ")
+        domains = input("Domain restrictions: ")
         if domains:
             domains = ":" + domains
 

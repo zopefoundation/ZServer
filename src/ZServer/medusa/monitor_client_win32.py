@@ -11,6 +11,9 @@ import sys
 import thread
 
 
+from six.moves import input
+
+
 def hex_digest(s):
     m = md5()
     m.update(s)
@@ -46,7 +49,7 @@ if __name__ == '__main__':
         print('Usage: %s host port')
         sys.exit(0)
     print('Enter Password: \n')
-    p = raw_input()
+    p = input()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((sys.argv[1], string.atoi(sys.argv[2])))
     l = thread.allocate_lock()

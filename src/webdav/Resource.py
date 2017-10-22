@@ -16,7 +16,6 @@
 import mimetypes
 import sys
 import re
-from urllib import unquote
 
 from AccessControl import getSecurityManager
 from AccessControl import ClassSecurityInfo
@@ -63,6 +62,9 @@ from webdav.common import tokenFinder
 from webdav.common import urlbase
 from webdav.common import urlfix
 from webdav.interfaces import IDAVResource
+
+from six.moves.urllib.parse import unquote
+
 
 ms_dav_agent = re.compile("Microsoft.*Internet Publishing.*")
 
