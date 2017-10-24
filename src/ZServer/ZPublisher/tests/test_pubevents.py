@@ -1,4 +1,3 @@
-from StringIO import StringIO
 from sys import modules, exc_info
 from unittest import TestCase
 
@@ -20,6 +19,9 @@ from ZPublisher.interfaces import (
     IPubBeforeStreaming,
 )
 from ZServer.ZPublisher.Publish import publish
+
+from six import StringIO
+
 
 PUBMODULE = 'TEST_testpubevents'
 

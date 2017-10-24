@@ -2,7 +2,6 @@
 
 import re
 import string
-import StringIO
 import sys
 import threading
 
@@ -10,6 +9,9 @@ from .. import counter
 from ..default_handler import split_path, unquote
 from .. import fifo
 from .. import select_trigger
+
+
+from six import StringIO
 
 
 class request_queue(object):
@@ -166,7 +168,7 @@ class script_handler(object):
             request.collector = collector(self, request, env)
             request.channel.set_terminator(None)
         else:
-            sin = StringIO.StringIO('')
+            sin = StringIO('')
             self.continue_request(sin, request, env)
 
     def continue_request(self, stdin, request, env):
@@ -279,7 +281,7 @@ class collector(object):
         self.handler = handler
         self.env = env
         self.request = request
-        self.data = StringIO.StringIO()
+        self.data = StringIO()
 
         # make sure there's a content-length header
         self.cl = request.get_header('content-length')

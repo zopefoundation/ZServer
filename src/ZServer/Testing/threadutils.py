@@ -17,9 +17,9 @@ be imported more selectively.
 from __future__ import absolute_import
 
 from threading import Thread
-from StringIO import StringIO
 
 from Lifetime import loop
+from six import StringIO
 
 dummyLOG = StringIO()
 

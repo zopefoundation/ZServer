@@ -5,6 +5,7 @@ Changelog
 ------------------
 
 - Move ``Products.SiteAccess`` back to `Zope`.
+- Import StringIO from six
 
 
 4.0b1 (2017-09-18)

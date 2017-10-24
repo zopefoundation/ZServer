@@ -19,7 +19,6 @@ import posixpath
 import os
 import socket
 import time
-import StringIO
 import asyncore
 
 from ZServer.medusa.http_server import http_request
@@ -27,6 +26,9 @@ from ZServer.medusa.default_handler import unquote
 from ZServer.PubCore import handle
 from ZServer.HTTPResponse import make_response
 from ZPublisher.HTTPRequest import HTTPRequest
+
+
+from six import StringIO
 
 
 def timeslice(period, when=None, t=time.time):
@@ -102,7 +104,7 @@ class ClockServer(asyncore.dispatcher):
         self.zhandler = handler
 
     def get_requests_and_response(self):
-        out = StringIO.StringIO()
+        out = StringIO()
         s_req = '%s %s HTTP/%s' % ('GET', self.method, '1.0')
         req = http_request(DummyChannel(self), s_req, 'GET', self.method,
                            '1.0', self.headers)

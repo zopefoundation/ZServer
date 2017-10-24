@@ -48,7 +48,6 @@ from ZServer.Zope2.Startup import config
 
 from ZServer import DebugLogger
 
-from cStringIO import StringIO
 from tempfile import TemporaryFile
 import socket
 import string
@@ -57,6 +56,9 @@ import sys
 import time
 import thread
 import base64
+
+from six.moves import cStringIO as StringIO
+
 
 tz_for_log = compute_timezone_for_log()
 

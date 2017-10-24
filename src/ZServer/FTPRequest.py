@@ -20,10 +20,12 @@ from __future__ import absolute_import
 
 from ZPublisher.HTTPRequest import HTTPRequest
 
-from cStringIO import StringIO
 import os
 from base64 import encodestring
 import re
+
+
+from six.moves import cStringIO as StringIO
 
 
 class FTPRequest(HTTPRequest):

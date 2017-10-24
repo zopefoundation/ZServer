@@ -13,7 +13,6 @@
 ##############################################################################
 
 import os
-import cStringIO
 import tempfile
 import unittest
 import warnings
@@ -22,6 +21,9 @@ import ZConfig
 import ZServer.Zope2.Startup
 from ZServer.Zope2.Startup.options import ZopeOptions
 import Products
+
+from six import moves
+
 
 TEMPNAME = tempfile.mktemp()
 TEMPPRODUCTS = os.path.join(TEMPNAME, "Products")
@@ -62,7 +64,7 @@ class TestWarnFilter(unittest.TestCase):
         # of the directory is checked.  This handles this in a
         # platform-independent way.
         schema = self.schema
-        sio = cStringIO.StringIO(
+        sio = moves.cStringIO(
             text.replace("<<INSTANCE_HOME>>", TEMPNAME))
         os.mkdir(TEMPNAME)
         os.mkdir(TEMPPRODUCTS)

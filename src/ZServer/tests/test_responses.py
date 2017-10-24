@@ -22,9 +22,11 @@ from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.pubevents import PubBeforeStreaming
 from zope.interface import implementer
 import unittest
-from cStringIO import StringIO
 
 from zope.event import subscribers
+
+
+from six.moves import cStringIO as StringIO
 
 
 class ZServerResponseTestCase(unittest.TestCase):

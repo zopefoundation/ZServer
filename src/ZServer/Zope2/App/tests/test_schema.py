@@ -15,11 +15,11 @@
 from __future__ import absolute_import
 
 import os
-import cStringIO
 import tempfile
 import unittest
 
 import ZConfig
+from six import moves
 
 import Products
 from ZServer.Zope2.Startup import datatypes
@@ -56,7 +56,7 @@ class ZServerStartupTestCase(unittest.TestCase):
         # of the directory is checked.  This handles this in a
         # platform-independent way.
         schema = self.schema
-        sio = cStringIO.StringIO(
+        sio = moves.cStringIO(
             text.replace("<<INSTANCE_HOME>>", TEMPNAME))
         os.mkdir(TEMPNAME)
         os.mkdir(TEMPPRODUCTS)
