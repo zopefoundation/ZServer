@@ -19,6 +19,10 @@ Changelog
 
 - Use `@implementer` class decorator.
 
+- The ``enable-product-installation`` `zope.conf` setting is now a no-op.
+
+- Changed `zope.conf` default settings for ``zserver-threads`` to ``2``.
+
 4.0a1 (2016-09-09)
 ------------------
 
