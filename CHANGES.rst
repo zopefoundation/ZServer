@@ -4,7 +4,9 @@ Changelog
 4.0b2 (unreleased)
 ------------------
 
-- Imports are compatible with Python3
+- Move ``Products.SiteAccess`` back to `Zope`.
+
+- Make imports compatible with Python 3.
 
 
 4.0b1 (2017-09-18)
