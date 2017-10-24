@@ -13,7 +13,7 @@ import socket
 import string
 import sys
 import time
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 
 from .counter import counter
 from . import http_date
@@ -87,11 +87,10 @@ class http_request(object):
         return key in self.reply_headers
 
     def build_reply_header(self):
-        return string.join(
+        return '\r\n'.join(
             [self.response(self.reply_code)] + map(
-                lambda x: '%s: %s' % x,
-                self.reply_headers.items()),
-            '\r\n'
+                lambda x: '%s: %s' % x, self.reply_headers.items()
+            )
         ) + '\r\n\r\n'
 
     # split a uri
@@ -348,7 +347,7 @@ class http_request(object):
     }
 
     # Default error message
-    DEFAULT_ERROR_MESSAGE = string.join(
+    DEFAULT_ERROR_MESSAGE = '\r\n'.join(
         ['<head>',
          '<title>Error response</title>',
          '</head>',
@@ -358,8 +357,7 @@ class http_request(object):
          '<p>Message: %(message)s.',
          '</body>',
          ''
-         ],
-        '\r\n'
+         ]
     )
 
 

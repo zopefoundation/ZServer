@@ -1,10 +1,12 @@
 # -*- Mode: Python; tab-width: 4 -*-
 # Author: Sam Rushing <rushing@nightmare.com>
 # python REPL channel.
+from __future__ import print_function
 
 import asyncore
 import asynchat
 from hashlib import md5
+import six
 import socket
 import string
 import sys
@@ -112,7 +114,7 @@ class monitor_channel(asynchat.async_chat):
                             return
                         else:
                             raise
-                    exec co in self.local_env
+                    exec(co in self.local_env)
                     method = 'exec'
             except:
                 method = 'exception'
@@ -322,12 +324,10 @@ class output_producer(object):
 
 
 if __name__ == '__main__':
-    import string
-    import sys
     if '-s' in sys.argv:
         sys.argv.remove('-s')
-        print 'Enter password: ',
-        password = raw_input()
+        print('Enter password: ')
+        password = six.moves.input()
     else:
         password = None
 

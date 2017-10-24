@@ -1,4 +1,3 @@
-from StringIO import StringIO
 from sys import modules, exc_info
 from unittest import TestCase
 
@@ -20,6 +19,9 @@ from ZPublisher.interfaces import (
     IPubBeforeStreaming,
 )
 from ZServer.ZPublisher.Publish import publish
+
+from io import BytesIO
+
 
 PUBMODULE = 'TEST_testpubevents'
 
@@ -78,14 +80,14 @@ class TestPubEvents(TestCase):
         publish(r, PUBMODULE, [None])
         events = self.reporter.events
         self.assertEqual(len(events), 4)
-        self.assert_(isinstance(events[0], PubStart))
+        self.assertTrue(isinstance(events[0], PubStart))
         self.assertEqual(events[0].request, r)
-        self.assert_(isinstance(events[-1], PubSuccess))
+        self.assertTrue(isinstance(events[-1], PubSuccess))
         self.assertEqual(events[-1].request, r)
         # test AfterTraversal and BeforeCommit as well
-        self.assert_(isinstance(events[1], PubAfterTraversal))
+        self.assertTrue(isinstance(events[1], PubAfterTraversal))
         self.assertEqual(events[1].request, r)
-        self.assert_(isinstance(events[2], PubBeforeCommit))
+        self.assertTrue(isinstance(events[2], PubBeforeCommit))
         self.assertEqual(events[2].request, r)
 
     def testFailureReturn(self):
@@ -94,12 +96,12 @@ class TestPubEvents(TestCase):
         publish(r, PUBMODULE, [None])
         events = self.reporter.events
         self.assertEqual(len(events), 3)
-        self.assert_(isinstance(events[0], PubStart))
+        self.assertTrue(isinstance(events[0], PubStart))
         self.assertEqual(events[0].request, r)
-        self.assert_(isinstance(events[1], PubBeforeAbort))
+        self.assertTrue(isinstance(events[1], PubBeforeAbort))
         self.assertEqual(events[1].request, r)
         self.assertEqual(events[1].retry, False)
-        self.assert_(isinstance(events[2], PubFailure))
+        self.assertTrue(isinstance(events[2], PubFailure))
         self.assertEqual(events[2].request, r)
         self.assertEqual(events[2].retry, False)
         self.assertEqual(len(events[2].exc_info), 3)
@@ -110,13 +112,13 @@ class TestPubEvents(TestCase):
         self.assertRaises(Exception, publish, r, PUBMODULE, [None])
         events = self.reporter.events
         self.assertEqual(len(events), 3)
-        self.assert_(isinstance(events[0], PubStart))
+        self.assertTrue(isinstance(events[0], PubStart))
         self.assertEqual(events[0].request, r)
-        self.assert_(isinstance(events[1], PubBeforeAbort))
+        self.assertTrue(isinstance(events[1], PubBeforeAbort))
         self.assertEqual(events[1].request, r)
         self.assertEqual(events[1].retry, False)
         self.assertEqual(len(events[1].exc_info), 3)
-        self.assert_(isinstance(events[2], PubFailure))
+        self.assertTrue(isinstance(events[2], PubFailure))
         self.assertEqual(events[2].request, r)
         self.assertEqual(events[2].retry, False)
         self.assertEqual(len(events[2].exc_info), 3)
@@ -128,38 +130,38 @@ class TestPubEvents(TestCase):
         events = self.reporter.events
         self.assertEqual(len(events), 7)
 
-        self.assert_(isinstance(events[0], PubStart))
+        self.assertTrue(isinstance(events[0], PubStart))
         self.assertEqual(events[0].request, r)
 
-        self.assert_(isinstance(events[1], PubBeforeAbort))
+        self.assertTrue(isinstance(events[1], PubBeforeAbort))
         self.assertEqual(events[1].request, r)
         self.assertEqual(events[1].retry, True)
         self.assertEqual(len(events[1].exc_info), 3)
-        self.assert_(isinstance(events[1].exc_info[1], ConflictError))
+        self.assertTrue(isinstance(events[1].exc_info[1], ConflictError))
 
-        self.assert_(isinstance(events[2], PubFailure))
+        self.assertTrue(isinstance(events[2], PubFailure))
         self.assertEqual(events[2].request, r)
         self.assertEqual(events[2].retry, True)
         self.assertEqual(len(events[2].exc_info), 3)
-        self.assert_(isinstance(events[2].exc_info[1], ConflictError))
+        self.assertTrue(isinstance(events[2].exc_info[1], ConflictError))
 
-        self.assert_(isinstance(events[3], PubStart))
-        self.assert_(isinstance(events[4], PubAfterTraversal))
-        self.assert_(isinstance(events[5], PubBeforeCommit))
-        self.assert_(isinstance(events[6], PubSuccess))
+        self.assertTrue(isinstance(events[3], PubStart))
+        self.assertTrue(isinstance(events[4], PubAfterTraversal))
+        self.assertTrue(isinstance(events[5], PubBeforeCommit))
+        self.assertTrue(isinstance(events[6], PubSuccess))
 
     def testStreaming(self):
-        out = StringIO()
+        out = BytesIO()
         response = HTTPResponse(stdout=out)
-        response.write('datachunk1')
-        response.write('datachunk2')
+        response.write(b'datachunk1')
+        response.write(b'datachunk2')
 
         events = self.reporter.events
         self.assertEqual(len(events), 1)
-        self.assert_(isinstance(events[0], PubBeforeStreaming))
+        self.assertTrue(isinstance(events[0], PubBeforeStreaming))
         self.assertEqual(events[0].response, response)
 
-        self.assertTrue('datachunk1datachunk2' in out.getvalue())
+        self.assertTrue(b'datachunk1datachunk2' in out.getvalue())
 
 
 def _succeed():

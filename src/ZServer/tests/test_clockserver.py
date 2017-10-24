@@ -1,5 +1,10 @@
 import unittest
 import time
+try:
+    from base64 import encodebytes
+except ImportError:
+    # PY2
+    from base64 import encodestring as encodebytes
 
 from ZServer import ClockServer
 
@@ -42,7 +47,7 @@ class ClockServerTests(unittest.TestCase):
         server = self._makeOne(method='a', period=60, user='charlie',
                                password='brown', host='localhost',
                                logger=logger)
-        auth = 'charlie:brown'.encode('base64')
+        auth = encodebytes(b'charlie:brown')
         self.assertEqual(server.headers,
                          ['User-Agent: Zope Clock Server Client',
                           'Accept: text/html,text/plain',
@@ -88,7 +93,7 @@ class ClockServerTests(unittest.TestCase):
         self.assertEqual(env['PATH_INFO'], '/a /b')
         self.assertEqual(env['PATH_TRANSLATED'], '/a /b')
         self.assertEqual(env['QUERY_STRING'], 'foo=bar')
-        self.assert_(env['channel.creation_time'])
+        self.assertTrue(env['channel.creation_time'])
 
     def test_handle_write(self):
         logger = DummyLogger()
@@ -120,8 +125,8 @@ class ClockServerTests(unittest.TestCase):
         self.assertEqual(handler.arg[0], 'Zope2')
         from ZServer.HTTPResponse import HTTPResponse
         from ZPublisher.HTTPRequest import HTTPRequest
-        self.assert_(isinstance(handler.arg[1], HTTPRequest))
-        self.assert_(isinstance(handler.arg[2], HTTPResponse))
+        self.assertTrue(isinstance(handler.arg[1], HTTPRequest))
+        self.assertTrue(isinstance(handler.arg[2], HTTPResponse))
 
     def test_timeslice(self):
         from ZServer.ClockServer import timeslice

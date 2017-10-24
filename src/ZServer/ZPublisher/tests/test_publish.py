@@ -1,4 +1,6 @@
 import doctest
+import re
+import six
 
 from zope.interface import implementer
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
@@ -244,7 +246,7 @@ def testPublisher():
     >>> response = publish(request, module_name, after_list)
     Traceback (most recent call last):
     ...
-    ConflictError: database conflict error
+    ZODB.POSException.ConflictError: database conflict error
     >>> tracer.showTracedPath()
     begin
     __call__
@@ -273,7 +275,7 @@ def testPublisher():
     >>> response = publish(request, module_name, after_list)
     Traceback (most recent call last):
     ...
-    ConflictError: database conflict error
+    ZODB.POSException.ConflictError: database conflict error
     >>> tracer.showTracedPath()
     begin
     __call__
@@ -310,7 +312,7 @@ def testPublisher():
     >>> response = publish(request, module_name, after_list)
     Traceback (most recent call last):
     ...
-    ConflictError: database conflict error
+    ZODB.POSException.ConflictError: database conflict error
     >>> tracer.showTracedPath()
     begin
     __call__
@@ -397,5 +399,18 @@ def testPublishPath():
     """
 
 
+class Py23DocChecker(doctest.OutputChecker):
+    def check_output(self, want, got, optionflags):
+        if six.PY2:
+            got = re.sub("set\(\[(.*?)\]\)", "{\\1}", got)
+            want = re.sub(
+                'ZODB.POSException.ConflictError',
+                'ConflictError', want
+            )
+        return doctest.OutputChecker.check_output(self, want, got, optionflags)
+
+
 def test_suite():
-    return doctest.DocTestSuite()
+    return doctest.DocTestSuite(
+        checker=Py23DocChecker(),
+    )

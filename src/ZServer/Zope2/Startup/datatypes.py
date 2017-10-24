@@ -13,13 +13,15 @@
 ##############################################################################
 """Datatypes for the Zope schema for use with ZConfig."""
 
-import cStringIO
 import os
-from UserDict import UserDict
+from six.moves import UserDict
 import traceback
 
 from ZConfig.components.logger import logger
 from ZODB.config import ZODBDatabase
+
+
+from six import moves
 
 
 def security_policy_implementation(value):
@@ -91,7 +93,7 @@ def importable_name(name):
                 package = __import__(n, g, g, component)
         return package
     except ImportError:
-        IO = cStringIO.StringIO()
+        IO = moves.cStringIO()
         traceback.print_exc(file=IO)
         raise ValueError(
             'The object named by "%s" could not be imported\n%s' % (

@@ -13,7 +13,13 @@
 """Commonly used functions for WebDAV support modules."""
 
 import re
-import urllib
+try:
+    from urllib.parse import splithost
+    from urllib.parse import splittype
+except ImportError:
+    # Python 2
+    from urllib import splithost
+    from urllib import splittype
 
 from Acquisition import aq_base, aq_parent
 from zExceptions import (
@@ -92,7 +98,7 @@ def is_acquired(ob):
     return 1
 
 
-def urlbase(url, ftype=urllib.splittype, fhost=urllib.splithost):
+def urlbase(url, ftype=splittype, fhost=splithost):
     # Return a '/' based url such as '/foo/bar', removing
     # type, host and port information if necessary.
     if url[0] == '/':

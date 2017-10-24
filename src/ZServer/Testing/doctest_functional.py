@@ -13,13 +13,18 @@
 """Support for (functional) doc tests
 """
 
-import base64
 import doctest
 import re
 import sys
 import warnings
 
 import transaction
+
+try:
+    from base64 import encodebytes
+except ImportError:
+    # PY2
+    from base64 import encodestring as encodebytes
 
 from Testing.ZopeTestCase import ZopeTestCase
 from Testing.ZopeTestCase import FunctionalTestCase
@@ -109,7 +114,7 @@ def auth_header(header):
             u = ''
         if p is None:
             p = ''
-        auth = base64.encodestring('%s:%s' % (u, p))
+        auth = encodebytes('%s:%s' % (u, p))
         return 'Basic %s' % auth[:-1]
     return header
 
@@ -294,7 +299,7 @@ class FunctionalSuiteFactory(ZopeSuiteFactory):
         globs['http'] = http
         globs['getRootFolder'] = getRootFolder
         globs['sync'] = sync
-        globs['user_auth'] = base64.encodestring(
+        globs['user_auth'] = encodebytes(
             '%s:%s' % (user_name, user_password))
 
     def setup_test_class(self):

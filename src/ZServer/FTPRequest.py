@@ -20,10 +20,16 @@ from __future__ import absolute_import
 
 from ZPublisher.HTTPRequest import HTTPRequest
 
-from cStringIO import StringIO
 import os
-from base64 import encodestring
+try:
+    from base64 import encodebytes
+except ImportError:
+    # PY2
+    from base64 import encodestring as encodebytes
 import re
+
+
+from io import StringIO
 
 
 class FTPRequest(HTTPRequest):
@@ -74,7 +80,7 @@ class FTPRequest(HTTPRequest):
         if channel.userid != 'anonymous':
             env['HTTP_AUTHORIZATION'] = 'Basic %s' % re.sub(
                 '\012', '',
-                encodestring('%s:%s' % (channel.userid, channel.password)))
+                encodebytes('%s:%s' % (channel.userid, channel.password)))
         env['SERVER_NAME'] = channel.server.hostname
         env['SERVER_PORT'] = str(channel.server.port)
         env['REMOTE_ADDR'] = channel.client_addr[0]

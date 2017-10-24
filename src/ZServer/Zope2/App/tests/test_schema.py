@@ -15,11 +15,11 @@
 from __future__ import absolute_import
 
 import os
-import cStringIO
 import tempfile
 import unittest
 
 import ZConfig
+from six import moves
 
 import Products
 from ZServer.Zope2.Startup import datatypes
@@ -56,7 +56,7 @@ class ZServerStartupTestCase(unittest.TestCase):
         # of the directory is checked.  This handles this in a
         # platform-independent way.
         schema = self.schema
-        sio = cStringIO.StringIO(
+        sio = moves.cStringIO(
             text.replace("<<INSTANCE_HOME>>", TEMPNAME))
         os.mkdir(TEMPNAME)
         os.mkdir(TEMPPRODUCTS)
@@ -79,8 +79,7 @@ class ZServerStartupTestCase(unittest.TestCase):
               ANOTHER value2
             </cgi-environment>
             """)
-        items = conf.cgi_environment.items()
-        items.sort()
+        items = sorted(conf.cgi_environment.items())
         self.assertEqual(
             items, [("ANOTHER", "value2"), ("HEADER", "value")])
 
@@ -136,7 +135,7 @@ class ZServerStartupTestCase(unittest.TestCase):
               </logfile>
             </logger>
             """ % fn)
-        self.assert_(isinstance(conf.access, datatypes.LoggerFactory))
+        self.assertTrue(isinstance(conf.access, datatypes.LoggerFactory))
         self.assertEqual(conf.access.name, "access")
         self.assertEqual(conf.access.handler_factories[0].section.path, fn)
-        self.assert_(conf.trace is None)
+        self.assertTrue(conf.trace is None)

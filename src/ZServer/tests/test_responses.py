@@ -22,9 +22,11 @@ from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.pubevents import PubBeforeStreaming
 from zope.interface import implementer
 import unittest
-from cStringIO import StringIO
 
 from zope.event import subscribers
+
+
+from six.moves import cStringIO as StringIO
 
 
 class ZServerResponseTestCase(unittest.TestCase):
@@ -312,7 +314,7 @@ class ZServerHTTPResponseEventsTestCase(unittest.TestCase):
 
         events = self.reporter.events
         self.assertEqual(len(events), 1)
-        self.assert_(isinstance(events[0], PubBeforeStreaming))
+        self.assertTrue(isinstance(events[0], PubBeforeStreaming))
         self.assertEqual(events[0].response, response)
 
         self.assertTrue('datachunk1datachunk2' in out.getvalue())

@@ -19,14 +19,22 @@ import posixpath
 import os
 import socket
 import time
-import StringIO
 import asyncore
+import six
+try:
+    from base64 import encodebytes
+except ImportError:
+    # PY2
+    from base64 import encodestring as encodebytes
 
 from ZServer.medusa.http_server import http_request
 from ZServer.medusa.default_handler import unquote
 from ZServer.PubCore import handle
 from ZServer.HTTPResponse import make_response
 from ZPublisher.HTTPRequest import HTTPRequest
+
+
+from io import StringIO
 
 
 def timeslice(period, when=None, t=time.time):
@@ -87,7 +95,10 @@ class ClockServer(asyncore.dispatcher):
         h.append('Host: %s' % host)
         auth = False
         if user and password:
-            encoded = ('%s:%s' % (user, password)).encode('base64')
+            user_password = '%s:%s' % (user, password)
+            if not isinstance(user_password, six.binary_type):
+                user_password = user_password.encode()
+            encoded = encodebytes(user_password)
             h.append('Authorization: Basic %s' % encoded)
             auth = True
 
@@ -102,7 +113,7 @@ class ClockServer(asyncore.dispatcher):
         self.zhandler = handler
 
     def get_requests_and_response(self):
-        out = StringIO.StringIO()
+        out = StringIO()
         s_req = '%s %s HTTP/%s' % ('GET', self.method, '1.0')
         req = http_request(DummyChannel(self), s_req, 'GET', self.method,
                            '1.0', self.headers)

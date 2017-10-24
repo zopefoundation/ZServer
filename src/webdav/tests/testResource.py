@@ -9,7 +9,7 @@ MS_DAV_AGENT = "Microsoft Data Access Internet Publishing Provider DAV"
 
 
 def make_request_response(environ=None):
-    from StringIO import StringIO
+    from io import StringIO
     from ZPublisher.HTTPRequest import HTTPRequest
     from ZPublisher.HTTPResponse import HTTPResponse
 
@@ -113,22 +113,22 @@ class TestResource(unittest.TestCase):
             req, resp = make_request_response()
             resource = self._makeOne()
             resource.OPTIONS(req, resp)
-            self.assert_('public' not in resp.headers)
+            self.assertTrue('public' not in resp.headers)
 
             config.ZSERVER_ENABLE_MS_PUBLIC_HEADER = True
             req, resp = make_request_response()
             resource = self._makeOne()
             resource.OPTIONS(req, resp)
-            self.assert_('public' not in resp.headers)
-            self.assert_('allow' in resp.headers)
+            self.assertTrue('public' not in resp.headers)
+            self.assertTrue('allow' in resp.headers)
 
             req, resp = make_request_response(
                 environ={'USER_AGENT': MS_DAV_AGENT})
             resource = self._makeOne()
             resource.OPTIONS(req, resp)
-            self.assert_('public' in resp.headers)
-            self.assert_('allow' in resp.headers)
-            self.assert_(resp.headers['public'] == resp.headers['allow'])
+            self.assertTrue('public' in resp.headers)
+            self.assertTrue('allow' in resp.headers)
+            self.assertTrue(resp.headers['public'] == resp.headers['allow'])
 
         finally:
             config.ZSERVER_ENABLE_MS_PUBLIC_HEADER = default_settings

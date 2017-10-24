@@ -11,9 +11,11 @@ from types import FileType
 from mimetypes import guess_type
 from base64 import encodestring
 from App.Common import rfc1123_date
-from cStringIO import StringIO
 from random import random
-from urllib import quote
+from six.moves.urllib.parse import quote
+
+
+from six.moves import cStringIO as StringIO
 
 
 class NotAvailable(Exception):

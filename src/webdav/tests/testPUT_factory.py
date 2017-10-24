@@ -1,4 +1,9 @@
-import base64
+try:
+    from base64 import encodebytes
+except ImportError:
+    # PY2
+    from base64 import encodestring as encodebytes
+import six
 import unittest
 
 import transaction
@@ -7,7 +12,9 @@ from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
 from Testing.makerequest import makerequest
 import ZServer.Zope2
 
-auth_info = 'Basic %s' % base64.encodestring('manager:secret').rstrip()
+auth_info = b'Basic %s' % encodebytes(b'manager:secret').rstrip()
+if not six.PY2:
+    auth_info = auth_info.decode()
 
 ZServer.Zope2.startup()
 

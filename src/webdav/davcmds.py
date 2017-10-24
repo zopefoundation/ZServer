@@ -14,9 +14,9 @@
 """
 
 import sys
-from cStringIO import StringIO
-from urllib import quote
+from six.moves.urllib.parse import quote
 
+from six.moves import cStringIO as StringIO
 import transaction
 from AccessControl.Permissions import delete_objects
 from AccessControl.SecurityManagement import getSecurityManager

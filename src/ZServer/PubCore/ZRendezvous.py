@@ -11,8 +11,8 @@
 #
 ##############################################################################
 
-import thread
-from ZServerPublisher import ZServerPublisher
+from six.moves import _thread
+from .ZServerPublisher import ZServerPublisher
 
 
 class ZRendevous(object):
@@ -23,7 +23,7 @@ class ZRendevous(object):
     """
 
     def __init__(self, n=1):
-        sync = thread.allocate_lock()
+        sync = _thread.allocate_lock()
         self._acquire = sync.acquire
         self._release = sync.release
         pool = []
@@ -38,10 +38,10 @@ class ZRendevous(object):
         self._acquire()  # callers will block
         try:
             while n > 0:
-                l = thread.allocate_lock()
+                l = _thread.allocate_lock()
                 l.acquire()
                 pool.append(l)
-                thread.start_new_thread(ZServerPublisher,
+                _thread.start_new_thread(ZServerPublisher,
                                         (self.accept,))
                 n = n - 1
         finally:

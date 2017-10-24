@@ -11,6 +11,7 @@
 #
 ##############################################################################
 
+import six
 import sys
 
 from webdav.xmltools import escape
@@ -21,12 +22,16 @@ if sys.version_info >= (3, ):
 
 
 def xml_escape(value):
-    if not isinstance(value, basestring):
-        value = unicode(value)
-    if not isinstance(value, unicode):
+    if isinstance(value, six.binary_type):
         value = value.decode('utf-8')
+    elif not isinstance(value, six.text_type):
+        value = unicode(value)
     value = escape(value)
-    return value.encode('utf-8')
+    # Return native str
+    if six.PY2:
+        return value.encode('utf-8')
+    else:
+        return value
 
 
 class DAVPropertySheetMixin(object):

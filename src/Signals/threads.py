@@ -1,15 +1,16 @@
 import sys
-import thread
-import traceback
+from six.moves import _thread
 import time
-from cStringIO import StringIO
+import traceback
+
+from six.moves import cStringIO as StringIO
 
 
 def dump_threads():
     """Dump running threads. Returns a string with the tracebacks."""
 
     frames = sys._current_frames()
-    this_thread_id = thread.get_ident()
+    this_thread_id = _thread.get_ident()
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     res = ["Threads traceback dump at %s\n" % now]
     for thread_id, frame in frames.iteritems():

@@ -13,9 +13,9 @@
 
 """ A set of utility routines used by asyncore initialization """
 
+import pkg_resources
 import sys
 
-import pkg_resources
 
 _version_string = None
 
@@ -71,6 +71,6 @@ except (ImportError, AttributeError):
 
 
 def patchSyslogServiceName():
-    from medusa import logger
+    from .medusa import logger
     # override the service name in logger.syslog_logger
     logger.syslog_logger.svc_name = 'ZServer'

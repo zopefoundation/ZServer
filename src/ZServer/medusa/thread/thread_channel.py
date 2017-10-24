@@ -15,7 +15,7 @@ import fcntl
 import os
 import socket
 import string
-import thread
+from six.moves import _thread
 
 try:
     from fcntl import F_GETFL, F_SETFL, O_NDELAY
@@ -56,7 +56,7 @@ class thread_channel(asyncore.file_dispatcher):
 
         of = os.fdopen(wfd, 'w')
 
-        thread.start_new_thread(
+        _thread.start_new_thread(
             self.function,
             # put the output file in front of the other arguments
             (of,) + self.args

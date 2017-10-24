@@ -14,6 +14,7 @@
 """
 
 import logging
+import six
 import sys
 
 import AccessControl.User
@@ -120,7 +121,7 @@ class ExceptionHook(object):
                     # correctly. We can't do that with all exceptions
                     # because some don't work with the rendered v as
                     # argument.
-                    reraise(t, v, traceback)
+                    reraise(t, t(v), traceback)
                 response = REQUEST.RESPONSE
                 response.setStatus(t)
                 response.setBody(v)
@@ -132,7 +133,10 @@ class ExceptionHook(object):
                 published = app.__bobo_traverse__(REQUEST).__of__(
                     RequestContainer(REQUEST))
 
-            published = getattr(published, 'im_self', published)
+            if six.PY2:
+                published = getattr(published, 'im_self', published)
+            else:
+                published = getattr(published, '__self__', published)
             while 1:
                 f = getattr(published, self.raise_error_message, None)
                 if f is None:

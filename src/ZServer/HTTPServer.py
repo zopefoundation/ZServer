@@ -39,7 +39,6 @@ import os
 import posixpath
 import time
 import socket
-from cStringIO import StringIO
 
 from ZServer.PubCore import handle
 from ZServer.HTTPResponse import make_response
@@ -58,6 +57,9 @@ from asyncore import dispatcher
 from ZServer import ZOPE_VERSION, ZSERVER_VERSION
 from ZServer.utils import requestCloseOnExec
 from ZServer import DebugLogger
+
+
+from six.moves import cStringIO as StringIO
 
 
 CONTENT_LENGTH = re.compile('Content-Length: ([0-9]+)', re.I)
@@ -176,7 +178,7 @@ class zhttp_handler(object):
 
     def get_environment(self, request,
                         # These are strictly performance hackery...
-                        h2ehas=header2env.has_key,
+                        h2ehas=lambda key: key in header2env,
                         h2eget=header2env.get,
                         workdir=os.getcwd(),
                         ospath=os.path,

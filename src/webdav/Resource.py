@@ -16,7 +16,7 @@
 import mimetypes
 import sys
 import re
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 
 from AccessControl import getSecurityManager
 from AccessControl import ClassSecurityInfo
@@ -208,7 +208,7 @@ class Resource(Base, LockableItem):
             content_type = absattr(self.content_type)
         if content_type is None:
             url = urlfix(REQUEST['URL'], 'HEAD')
-            name = unquote(filter(None, url.split('/')[-1]))
+            name = unquote(list(filter(None, url.split('/')[-1])))
             content_type, encoding = mimetypes.guess_type(name)
         if content_type is None:
             if hasattr(self, 'default_content_type'):
@@ -273,7 +273,7 @@ class Resource(Base, LockableItem):
         self.dav__init(REQUEST, RESPONSE)
         ifhdr = REQUEST.get_header('If', '')
         url = urlfix(REQUEST['URL'], 'DELETE')
-        name = unquote(filter(None, url.split('/')[-1]))
+        name = unquote(list(filter(None, url.split('/')))[-1])
         parent = aq_parent(aq_inner(self))
         # Lock checking
         if wl_isLocked(self):

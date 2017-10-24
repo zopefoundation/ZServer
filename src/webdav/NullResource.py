@@ -12,7 +12,7 @@
 ##############################################################################
 """WebDAV support - null resource objects.
 """
-
+import six
 import sys
 
 from AccessControl.class_init import InitializeClass
@@ -93,6 +93,8 @@ class NullResource(Persistent, Implicit, Resource):
 
     def _default_PUT_factory(self, name, typ, body):
         # Return DTMLDoc/PageTemplate/Image/File, based on sniffing.
+        if not isinstance(body, six.binary_type):
+            body = body.encode()
         if name and name.endswith('.pt'):
             ob = ZopePageTemplate(name, body, content_type=typ)
         elif typ in ('text/html', 'text/xml', 'text/plain'):
@@ -148,7 +150,7 @@ class NullResource(Persistent, Implicit, Resource):
         if (int(REQUEST.get('CONTENT_LENGTH') or 0) >
                 ZSERVER_LARGE_FILE_THRESHOLD):
             file = REQUEST['BODYFILE']
-            body = file.read(ZSERVER_LARGE_FILE_THRESHOLD)
+            body = file.read(ZSERVER_LARGE_FILE_THRESHOLD).encode()
             file.seek(0)
         else:
             body = REQUEST.get('BODY', '')

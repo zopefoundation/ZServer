@@ -190,7 +190,8 @@ class os_filesystem(object):
         p = self.normalize(self.path_module.join(self.root, p[1:]))
         return p
 
-    def longify(self, (path, stat_info)):
+    def longify(self, args):
+        path, stat_info = args
         return unix_longify(path, stat_info)
 
     def __repr__(self):
@@ -321,8 +322,8 @@ if os.name == 'posix':
 
 class msdos_filesystem (os_filesystem):
 
-    def longify(self, (path, stat_info)):
-        return msdos_longify(path, stat_info)
+    def longify(self, args):
+        return msdos_longify(*args)
 
         # A merged filesystem will let you plug other filesystems together.
         # We really need the equivalent of a 'mount' capability - this seems

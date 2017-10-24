@@ -14,7 +14,6 @@
 
 from __future__ import absolute_import
 
-import cStringIO
 import errno
 import logging
 import os
@@ -26,6 +25,7 @@ import unittest
 
 import ZConfig
 from ZConfig.components.logger.tests.test_logger import LoggingTestHelper
+from six import moves
 
 from App.config import getConfiguration, setConfiguration
 import Products
@@ -86,7 +86,7 @@ class BaseTestCase(LoggingTestHelper):
         # of the directory is checked.  This handles this in a
         # platform-independent way.
         schema = self.schema
-        sio = cStringIO.StringIO(
+        sio = moves.cStringIO(
             text.replace("<<INSTANCE_HOME>>", TEMPNAME))
         try:
             os.mkdir(TEMPNAME)
@@ -169,7 +169,7 @@ class ZopeStarterTestCase(BaseTestCase, unittest.TestCase):
         # in the test value first, so we can skip over it later.  Also,
         # because .seek(1) isn't well-defined for files opened in text
         # mode, we open the file in binary mode (above and below).
-        f.write(' hello')
+        f.write(b' hello')
         f.close()
         try:
             starter = self.get_starter(conf)
@@ -178,7 +178,7 @@ class ZopeStarterTestCase(BaseTestCase, unittest.TestCase):
             f.seek(1)   # skip over the locked byte
             guts = f.read()
             f.close()
-            self.assertFalse(guts.find('hello') > -1)
+            self.assertFalse(guts.find(b'hello') > -1)
         finally:
             starter.unlinkLockFile()
             self.assertFalse(os.path.exists(name))
@@ -225,7 +225,7 @@ class ZopeStarterTestCase(BaseTestCase, unittest.TestCase):
         # with the lowest level
         logger = starter.event_logger
         self.assertEqual(starter.startup_handler.level, 15)  # 15 is BLATHER
-        self.assert_(starter.startup_handler in logger.handlers)
+        self.assertTrue(starter.startup_handler in logger.handlers)
         self.assertEqual(logger.level, 15)
         # We expect a debug handler and the startup handler:
         self.assertEqual(len(logger.handlers), 2)

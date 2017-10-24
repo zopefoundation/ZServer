@@ -48,15 +48,17 @@ from ZServer.Zope2.Startup import config
 
 from ZServer import DebugLogger
 
-from cStringIO import StringIO
 from tempfile import TemporaryFile
 import socket
 import string
 import os
 import sys
 import time
-import thread
+from six.moves import _thread
 import base64
+
+from io import StringIO
+
 
 tz_for_log = compute_timezone_for_log()
 
@@ -689,7 +691,7 @@ class FCGIResponse(HTTPResponse):
                         l = string.atoi(l)
                     if l > 128000:
                         self._tempfile = TemporaryFile()
-                        self._templock = thread.allocate_lock()
+                        self._templock = _thread.allocate_lock()
                 except Exception:
                     pass
 

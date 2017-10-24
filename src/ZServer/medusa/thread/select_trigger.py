@@ -6,7 +6,7 @@ import asynchat
 import os
 import socket
 import string
-import thread
+from six.moves import _thread
 import errno
 
 VERSION_STRING = "$Id$"
@@ -49,7 +49,7 @@ if os.name == 'posix':
             r, w = os.pipe()
             self.trigger = w
             asyncore.file_dispatcher.__init__(self, r)
-            self.lock = thread.allocate_lock()
+            self.lock = _thread.allocate_lock()
             self.thunks = []
 
         def __repr__(self):
@@ -155,7 +155,7 @@ else:
             self.trigger = w
             asyncore.dispatcher.__init__(self, r)
 
-            self.lock = thread.allocate_lock()
+            self.lock = _thread.allocate_lock()
             self.thunks = []
             self._trigger_connected = 0
 
@@ -288,7 +288,7 @@ if __name__ == '__main__':
             n = string.atoi(string.split(data)[0])
             tf = trigger_file(self)
             self.count = self.count + 1
-            thread.start_new_thread(thread_function, (tf, self.count, n))
+            _thread.start_new_thread(thread_function, (tf, self.count, n))
 
     class thread_server(asyncore.dispatcher):
 

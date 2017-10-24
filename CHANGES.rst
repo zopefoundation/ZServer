@@ -4,7 +4,7 @@ Changelog
 4.0b4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Python 3 compatibility
 
 
 4.0b3 (2018-10-05)

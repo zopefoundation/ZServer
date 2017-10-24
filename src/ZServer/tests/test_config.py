@@ -14,13 +14,15 @@
 
 """Test the ZServer configuration machinery."""
 
-import cStringIO as StringIO
 import os
 import tempfile
 import unittest
 
 import ZConfig
 import ZServer.datatypes
+
+
+from six.moves import cStringIO as NativeStringIO
 
 
 TEMPFILENAME = tempfile.mktemp()
@@ -31,7 +33,7 @@ class BaseTest(unittest.TestCase):
 
     def get_schema(self):
         if self.schema is None:
-            sio = StringIO.StringIO("""
+            sio = NativeStringIO("""
             <schema>
               <import package='ZServer'/>
               <multisection name='*'
@@ -45,7 +47,7 @@ class BaseTest(unittest.TestCase):
 
     def load_factory(self, text):
         conf, xxx = ZConfig.loadConfigFile(self.get_schema(),
-                                           StringIO.StringIO(text))
+                                           NativeStringIO(text))
         self.assertEqual(len(conf.servers), 1)
         return conf.servers[0]
 
@@ -58,12 +60,12 @@ class BaseTest(unittest.TestCase):
         o = object()
         factory.prepare(defaulthost, o, "module",
                         {"key": "value"}, portbase=9300)
-        self.assert_(factory.dnsresolver is o)
+        self.assertTrue(factory.dnsresolver is o)
         self.assertEqual(factory.module, "module")
-        self.assertEqual(factory.cgienv.items(), [("key", "value")])
+        self.assertListEqual(list(factory.cgienv.items()), [("key", "value")])
         if port is None:
-            self.assert_(factory.host is None, factory.host)
-            self.assert_(factory.port is None, factory.port)
+            self.assertTrue(factory.host is None, factory.host)
+            self.assertTrue(factory.port is None, factory.port)
         else:
             self.assertEqual(factory.host, expected_factory_host)
             self.assertEqual(factory.port, 9300 + port)
@@ -80,10 +82,9 @@ class WarningInterceptor(object):
             return
 
         import sys
-        from StringIO import StringIO
 
         self._old_stderr = sys.stderr
-        self._our_stderr_stream = sys.stderr = StringIO()
+        self._our_stderr_stream = sys.stderr = NativeStringIO()
 
     def _free_warning_output(self):
 
@@ -111,8 +112,8 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
             factory = self.load_factory(text % fn)
         finally:
             os.unlink(fn)
-        self.assert_(factory.host is None)
-        self.assert_(factory.port is None)
+        self.assertTrue(factory.host is None)
+        self.assertTrue(factory.port is None)
         self.assertEqual(factory.path, fn)
         return factory
 
@@ -124,9 +125,8 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               webdav-source-clients cadaever
             </http-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.HTTPServerFactory))
-        self.assert_(factory.force_connection_close)
+        self.assertIsInstance(factory, ZServer.datatypes.HTTPServerFactory)
+        self.assertTrue(factory.force_connection_close)
         self.assertEqual(factory.host, "")
         self.assertEqual(factory.port, 81)
         self.assertEqual(factory.webdav_source_clients, "cadaever")
@@ -144,8 +144,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               address [::1]:81
             </http-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.HTTPServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.HTTPServerFactory)
         self.assertEqual(factory.host, "::1")
         self.assertEqual(factory.port, 81)
         self.check_prepare(factory)
@@ -177,9 +176,11 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               force-connection-close true
             </webdav-source-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.WebDAVSourceServerFactory))
-        self.assert_(factory.force_connection_close)
+        self.assertIsInstance(
+            factory,
+            ZServer.datatypes.WebDAVSourceServerFactory,
+        )
+        self.assertTrue(factory.force_connection_close)
         self.assertEqual(factory.host, "")
         self.assertEqual(factory.port, 82)
         self.check_prepare(factory)
@@ -194,8 +195,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               path %s
             </persistent-cgi>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.PCGIServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.PCGIServerFactory)
 
     def test_fcgi_factory(self):
         self._trap_warning_output()
@@ -204,8 +204,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               address 83
             </fast-cgi>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.FCGIServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.FCGIServerFactory)
         self.assertEqual(factory.host, "")
         self.assertEqual(factory.port, 83)
         self.assertEqual(factory.path, None)
@@ -216,8 +215,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               address %s
             </fast-cgi>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.FCGIServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.FCGIServerFactory)
         self.check_prepare(factory)
 
     def test_ftp_factory(self):
@@ -226,8 +224,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               address 84
             </ftp-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.FTPServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.FTPServerFactory)
         self.assertEqual(factory.host, "")
         self.assertEqual(factory.port, 84)
         self.check_prepare(factory)
@@ -239,8 +236,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               address 86
             </icp-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.ICPServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.ICPServerFactory)
         self.assertEqual(factory.host, "")
         self.assertEqual(factory.port, 86)
         self.check_prepare(factory)
@@ -256,8 +252,7 @@ class ZServerConfigurationTestCase(BaseTest, WarningInterceptor):
               host www.example.com
             </clock-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.ClockServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.ClockServerFactory)
         self.assertEqual(factory.method, '/foo/bar')
         self.assertEqual(factory.period, 30)
         self.assertEqual(factory.user, 'chrism')
@@ -293,8 +288,7 @@ class MonitorServerConfigurationTestCase(BaseTest):
               address 85
             </monitor-server>
             """)
-        self.assert_(isinstance(factory,
-                                ZServer.datatypes.MonitorServerFactory))
+        self.assertIsInstance(factory, ZServer.datatypes.MonitorServerFactory)
         self.assertEqual(factory.host, "")
         self.assertEqual(factory.port, 85)
         self.check_prepare(factory)
@@ -302,7 +296,7 @@ class MonitorServerConfigurationTestCase(BaseTest):
 
     def test_monitor_factory_without_emergency_user(self):
         self.setUser(True)
-        self.assert_(self.create() is None)
+        self.assertTrue(self.create() is None)
 
     def test_monitor_factory_with_emergency_user(self):
         self.setUser(False)

@@ -37,12 +37,12 @@ class ExceptionHookTestCase(unittest.TestCase):
         from ZPublisher.HTTPResponse import HTTPResponse
 
         if stdin is None:
-            from StringIO import StringIO
-            stdin = StringIO()
+            from io import BytesIO
+            stdin = BytesIO()
 
         if stdout is None:
-            from StringIO import StringIO
-            stdout = StringIO()
+            from io import BytesIO
+            stdin = BytesIO()
 
         if environ is None:
             environ = {}
@@ -68,7 +68,7 @@ class ExceptionHookTestCase(unittest.TestCase):
             if kw is None:
                 kw = {}
             f(*args, **kw)
-        except:
+        except BaseException:
             return hook(published, request,
                         sys.exc_info()[0],
                         sys.exc_info()[1],
@@ -137,11 +137,11 @@ class ExceptionHookTest(ExceptionHookTestCase):
             raise ConflictError()
         request = self._makeRequest()
         old_value = getattr(getConfiguration(), 'conflict_error_log_level', 0)
-        self.assertEquals(old_value, 0)  # default value
+        self.assertEqual(old_value, 0)  # default value
         try:
             getConfiguration().conflict_error_log_level = logging.CRITICAL
             level = getattr(getConfiguration(), 'conflict_error_log_level', 0)
-            self.assertEquals(level, logging.CRITICAL)
+            self.assertEqual(level, logging.CRITICAL)
             self.assertRaises(Retry, self.call, None, request, f)
         finally:
             getConfiguration().conflict_error_log_level = old_value
@@ -152,11 +152,11 @@ class ExceptionHookTest(ExceptionHookTestCase):
         def f():
             raise ConflictError()
         hook = self._makeOne()
-        self.assertEquals(hook.conflict_errors, 0)
+        self.assertEqual(hook.conflict_errors, 0)
         self.call_no_exc(hook, None, None, f)
-        self.assertEquals(hook.conflict_errors, 1)
+        self.assertEqual(hook.conflict_errors, 1)
         self.call_no_exc(hook, None, None, f)
-        self.assertEquals(hook.conflict_errors, 2)
+        self.assertEqual(hook.conflict_errors, 2)
 
     def testRetryRaisesOriginalException(self):
         from ZPublisher import Retry
@@ -198,11 +198,11 @@ class ExceptionHookTest(ExceptionHookTestCase):
                             sys.exc_info()[1],
                             sys.exc_info()[2])
         hook = self._makeOne()
-        self.assertEquals(hook.unresolved_conflict_errors, 0)
+        self.assertEqual(hook.unresolved_conflict_errors, 0)
         self.call_no_exc(hook, None, None, f)
-        self.assertEquals(hook.unresolved_conflict_errors, 1)
+        self.assertEqual(hook.unresolved_conflict_errors, 1)
         self.call_no_exc(hook, None, None, f)
-        self.assertEquals(hook.unresolved_conflict_errors, 2)
+        self.assertEqual(hook.unresolved_conflict_errors, 2)
 
 
 class Client(Acquisition.Explicit):
@@ -409,4 +409,4 @@ class ExceptionViewsTest(PlacelessSetup, ExceptionHookTestCase):
         client = StandardClient()
         v = self.call_exc_value(client, request, f)
         self.assertTrue(isinstance(v, Redirect), v)
-        self.assertEquals(v.args[0], "http://zope.org/")
+        self.assertEqual(v.args[0], "http://zope.org/")

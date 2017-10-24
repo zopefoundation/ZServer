@@ -11,3 +11,4 @@ dist/
 eggs/
 lib/
 parts/
+/.tox

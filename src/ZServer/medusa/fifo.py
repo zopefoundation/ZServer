@@ -81,8 +81,8 @@ class protected_fifo(object):
 
     def __init__(self, lock=None):
         if lock is None:
-            import thread
-            self.lock = thread.allocate_lock()
+            from six.moves import _thread
+            self.lock = _thread.allocate_lock()
         else:
             self.lock = lock
         self.fifo = fifo.fifo()

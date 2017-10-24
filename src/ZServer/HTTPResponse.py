@@ -19,10 +19,10 @@ and logging duties.
 from __future__ import absolute_import
 
 import asyncore
-from cStringIO import StringIO
 import re
 import tempfile
-import thread
+import six
+from six.moves import _thread
 import time
 
 from zope.event import notify
@@ -43,6 +43,9 @@ from ZServer.Producers import file_close_producer
 from ZServer.Producers import iterator_producer
 from ZServer.DebugLogger import log
 from ZServer.Zope2.Startup import config
+
+
+from io import StringIO
 
 
 class ZServerHTTPResponse(HTTPResponse):
@@ -73,6 +76,9 @@ class ZServerHTTPResponse(HTTPResponse):
 
         headers = self.headers
         body = self.body
+        # native string here
+        if not six.PY2 and isinstance(body, six.binary_type):
+            body = body.decode()
 
         # set 204 (no content) status if 200 and response is empty
         # and not streaming
@@ -119,7 +125,7 @@ class ZServerHTTPResponse(HTTPResponse):
                 self.setHeader('Transfer-Encoding', 'chunked')
                 self._chunking = 1
 
-        headers = headers.items()
+        headers = list(headers.items())
         headers.extend(self.accumulated_headers)
 
         for key, val in headers:
@@ -179,7 +185,7 @@ class ZServerHTTPResponse(HTTPResponse):
                         l = int(l)
                     if l > 128000:
                         self._tempfile = tempfile.TemporaryFile()
-                        self._templock = thread.allocate_lock()
+                        self._templock = _thread.allocate_lock()
                 except Exception:
                     pass
 

@@ -8,7 +8,7 @@ from hashlib import md5
 import socket
 import string
 import sys
-import thread
+from six.moves import _thread
 
 
 def hex_digest(s):
@@ -29,7 +29,7 @@ def reader(lock, sock, password):
         if not d:
             lock.release()
             print('Connection closed.  Hit <return> to exit')
-            thread.exit()
+            _thread.exit()
         sys.stdout.write(d)
         sys.stdout.flush()
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     p = raw_input()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((sys.argv[1], string.atoi(sys.argv[2])))
-    l = thread.allocate_lock()
+    l = _thread.allocate_lock()
     l.acquire()
-    thread.start_new_thread(reader, (l, s, p))
+    _thread.start_new_thread(reader, (l, s, p))
     writer(l, s)

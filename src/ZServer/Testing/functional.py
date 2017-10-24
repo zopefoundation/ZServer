@@ -15,9 +15,14 @@
 After Marius Gedminas' functional.py module for Zope3.
 """
 
-import base64
 import re
 import sys
+
+try:
+    from base64 import encodebytes
+except ImportError:
+    # PY2
+    from base64 import encodestring as encodebytes
 
 import transaction
 from zope.interface import implementer
@@ -87,7 +92,7 @@ class Functional(sandbox.Sandboxed):
             raise TypeError('')
 
         if basic:
-            env['HTTP_AUTHORIZATION'] = "Basic %s" % base64.encodestring(basic)
+            env['HTTP_AUTHORIZATION'] = "Basic %s" % encodebytes(basic)
 
         if stdin is None:
             stdin = StringIO()
