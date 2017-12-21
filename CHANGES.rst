@@ -4,6 +4,7 @@ Changelog
 4.0b2 (unreleased)
 ------------------
 
+- Add optional support for systemd sd_notify().
 - Move ``Products.SiteAccess`` back to `Zope`.
 
 

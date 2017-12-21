@@ -5,6 +5,13 @@ import time
 
 from Signals.threads import dump_threads
 
+# Optional systemd sd_notify() watchdog support
+try:
+    from sdnotify import SystemdNotifier
+    _SD_NOTIFY_WATCHDOG = True
+except ImportError:
+    _SD_NOTIFY_WATCHDOG = False
+
 logger = logging.getLogger("Z2")
 
 _shutdown_phase = 0
@@ -59,7 +66,12 @@ def lifetime_loop():
     # The main loop. Stay in here until we need to shutdown
     map = asyncore.socket_map
     timeout = 30.0
+    timestamp = time.time()
     while map and _shutdown_phase == 0:
+        if _SD_NOTIFY_WATCHDOG and timestamp + timeout < time.time():
+            SystemdNotifier().notify('WATCHDOG=1')
+            logger.debug("Notifying systemd we're still alive")
+            timestamp = time.time()
         asyncore.poll(timeout, map)
 
 
