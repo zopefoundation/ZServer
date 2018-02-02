@@ -62,6 +62,9 @@ setup(
         'zope.testing',
         'Zope > 4.0b2',
     ],
+    extras_require={
+        'sdnotify': ['sdnotify'],
+    },
     include_package_data=True,
     zip_safe=False,
     entry_points={

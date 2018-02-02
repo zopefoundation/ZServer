@@ -32,6 +32,13 @@ try:
 except NameError:
     IO_ERRORS = (IOError, OSError, )
 
+# Optional systemd sd_notify() readiness announcement support
+try:
+    from sdnotify import SystemdNotifier
+    _SD_NOTIFY_READINESS = True
+except ImportError:
+    _SD_NOTIFY_READINESS = False
+
 logger = logging.getLogger("Zope")
 
 
@@ -80,6 +87,9 @@ class ZopeStarter(object):
         config = getConfiguration()  # NOQA
         self.registerSignals()
         logger.info('Ready to handle requests')
+        if _SD_NOTIFY_READINESS:
+            SystemdNotifier().notify('READY=1')
+            logger.info('Notifying systemd of readiness')
         self.sendEvents()
 
     def dropPrivileges(self):

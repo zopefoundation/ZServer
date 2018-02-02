@@ -37,6 +37,34 @@ pair to bind only to a specific interface.
 After making any changes to the configuration file, you need to restart any
 running ZServer for the affected instance before changes are in effect.
 
+Additionally if you've installed ZServer with the sdnotify extra and you are
+on a Linux distribution using systemd, ZServer will tell your service it is
+ready and also tell it to reset its watchdog timer every 30 seconds.
+
+A sample service file::
+
+    [Unit]
+    Description=A test ZServer service
+
+    [Service]
+    # Note: setting PYTHONUNBUFFERED is necessary to see the output of this
+    # service in the journal
+    # See https://docs.python.org/2/using/cmdline.html#envvar-PYTHONUNBUFFERED
+    Environment=PYTHONUNBUFFERED=true
+
+    # Adjust this line to the correct path and params for your Zope instance
+    ExecStart=/path/to/bin/runzope
+
+    # Note that we use Type=notify here since ZServer will send "READY=1"
+    # when it's finished starting up
+    Type=notify
+
+    # We'll assume it needs to get back to us at least every 45s or it is dead
+    WatchdogSec=45
+
+    # We'll always kick it back up if it is in a failure state
+    # There are other values for this, including on-watchdog, read systemd docs
+    Restart=always
 
 Running ZServer in the Foreground
 ---------------------------------
