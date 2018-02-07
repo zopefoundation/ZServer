@@ -14,7 +14,7 @@
 # Medusa ICP server
 #
 # Why would you want to use this?
-# see http://www.zope.org/Members/htrd/icp/intro
+# see http://old.zope.org/Members/htrd/icp/intro
 
 import asyncore
 import errno
