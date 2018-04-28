@@ -1,7 +1,7 @@
-import unittest
-import xmlrpclib
-
 from DateTime import DateTime
+
+import unittest
+import xmlrpc.client as xmlrpclib
 
 
 class FauxResponse(object):

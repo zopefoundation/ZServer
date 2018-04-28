@@ -19,18 +19,19 @@ See http://www.xmlrpc.com/ and http://linux.userland.com/ for more
 information about XML-RPC and Zope.
 """
 
-import re
-import sys
-import types
-import xmlrpclib
-
 from App.config import getConfiguration
-from zExceptions import Unauthorized
-from ZODB.POSException import ConflictError
-
 # Make DateTime.DateTime marshallable via XML-RPC
 # http://www.zope.org/Collectors/Zope/2109
 from DateTime.DateTime import DateTime
+from zExceptions import Unauthorized
+from ZODB.POSException import ConflictError
+
+import re
+import sys
+import types
+import xmlrpc.client as xmlrpclib
+
+
 WRAPPERS = xmlrpclib.WRAPPERS + (DateTime, )
 
 
@@ -50,7 +51,7 @@ def dump_instance(self, value, write):
         self.dump_struct(value, write)
 
 
-xmlrpclib.Marshaller.dispatch[types.InstanceType] = dump_instance
+xmlrpclib.Marshaller.dispatch[object] = dump_instance
 xmlrpclib.Marshaller.dispatch[DateTime] = dump_instance
 
 
