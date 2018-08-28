@@ -6,9 +6,11 @@ install:
     - pip install -U setuptools==39.1.0 zc.buildout==2.11.4 six==1.11.0 coveralls
     - buildout
 script:
-    - bin/test -v1
+    - coverage run bin/test -v1
 notifications:
     email: false
+after_success:
+    - coveralls
 cache:
   pip: true
   directories:
