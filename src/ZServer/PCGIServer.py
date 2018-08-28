@@ -42,7 +42,7 @@ import time
 from ZServer.medusa import logger
 from ZServer.medusa.counter import counter
 from ZServer.medusa.http_server import compute_timezone_for_log
-from ZServer import requestCloseOnExec
+from ZServer.utils import requestCloseOnExec
 
 from ZServer.PubCore import handle
 from ZServer.PubCore.ZEvent import Wakeup

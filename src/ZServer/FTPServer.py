@@ -73,7 +73,7 @@ from ZServer.medusa import filesys
 from ZServer.FTPResponse import make_response
 from ZServer.FTPRequest import FTPRequest
 
-from ZServer import requestCloseOnExec
+from ZServer.utils import requestCloseOnExec
 
 import os
 import stat

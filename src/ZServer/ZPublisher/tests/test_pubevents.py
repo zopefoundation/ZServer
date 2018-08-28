@@ -6,7 +6,7 @@ from ZODB.POSException import ConflictError
 from zope.interface.verify import verifyObject
 from zope.event import subscribers
 
-from ZPublisher.Publish import Retry
+from ZServer.ZPublisher.Publish import Retry
 from ZPublisher.BaseRequest import BaseRequest
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.pubevents import (
