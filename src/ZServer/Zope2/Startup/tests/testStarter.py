@@ -341,7 +341,7 @@ class ZopeStarterTestCase(BaseTestCase, unittest.TestCase):
         sys.argv = [sys.argv[0]]
         try:
             fname = os.path.join(TEMPNAME, 'zope.conf')
-            from Zope2 import configure
+            from ZServer.Zope2.Startup.run import configure
             f = open(fname, 'w')
             f.write('instancehome %s\nzserver-threads 100\n' % TEMPNAME)
             f.flush()
