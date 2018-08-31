@@ -14,7 +14,7 @@
 
 from setuptools import setup, find_packages
 
-version = '4.0b2'
+version = '4.0b3.dev0'
 
 setup(
     name='ZServer',
