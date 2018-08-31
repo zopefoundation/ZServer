@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0b2 (unreleased)
+4.0b2 (2018-08-31)
 ------------------
 
 - Add optional support for systemd sd_notify().
