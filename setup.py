@@ -19,7 +19,7 @@ version = '4.0b2.dev0'
 setup(
     name='ZServer',
     version=version,
-    url='https://pypi.python.org/pypi/ZServer',
+    url='https://github.com/zopefoundation/ZServer',
     license='ZPL 2.1',
     description="Zope ZServer.",
     author='Zope Foundation and Contributors',
@@ -32,6 +32,7 @@ setup(
         "Development Status :: 6 - Mature",
         "Environment :: Web Environment",
         "Framework :: Zope2",
+        "Framework :: Zope :: 2",
         "License :: OSI Approved :: Zope Public License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
@@ -60,7 +61,7 @@ setup(
         'zope.processlifetime',
         'zope.schema',
         'zope.testing',
-        'Zope > 4.0b2',
+        'Zope >= 4.0b3',
     ],
     extras_require={
         'sdnotify': ['sdnotify'],
