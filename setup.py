@@ -61,7 +61,7 @@ setup(
         'zope.processlifetime',
         'zope.schema',
         'zope.testing',
-        'Zope >= 4.0b3',
+        'Zope >= 4.0b6',
     ],
     extras_require={
         'sdnotify': ['sdnotify'],
