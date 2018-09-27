@@ -4,7 +4,7 @@ Changelog
 4.0b3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Move `ZPublisher.xmlrpc` back to `Zope`.
 
 
 4.0b2 (2018-08-31)
