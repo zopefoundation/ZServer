@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0b3 (unreleased)
+4.0b3 (2018-10-05)
 ------------------
 
 - Move `ZPublisher.xmlrpc` back to `Zope`.
