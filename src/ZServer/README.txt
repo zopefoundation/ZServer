@@ -15,7 +15,7 @@ What is ZServer?
 
 What is Medusa?
 
-  Medusa is a Python server framework with uses a single threaded
+  Medusa is a Python server framework which uses a single threaded
   asynchronous sockets approach. For more information see::
   
     http://www.nightmare.com/medusa
