@@ -340,7 +340,6 @@ def get_module_info(module_name, modules={},
                 realm = module_name
 
             # Check for debug mode
-            debug_mode = None
             if hasattr(module, '__bobo_debug_mode__'):
                 debug_mode = bool(module.__bobo_debug_mode__)
             else:
