@@ -3,7 +3,7 @@ sudo: false
 python:
     - 2.7
 install:
-    - pip install -U setuptools==39.1.0 zc.buildout==2.11.4 six==1.11.0 coveralls
+    - pip install -U setuptools==39.1.0 zc.buildout==2.12.1 six==1.11.0 coveralls
     - buildout
 script:
     - coverage run bin/test -v1
