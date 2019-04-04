@@ -25,7 +25,7 @@ import tempfile
 import unittest
 
 import ZConfig
-from ZConfig.components.logger.tests.test_logger import LoggingTestHelper
+from ZConfig.components.logger.tests.support import LoggingTestHelper
 
 from App.config import getConfiguration, setConfiguration
 import Products
