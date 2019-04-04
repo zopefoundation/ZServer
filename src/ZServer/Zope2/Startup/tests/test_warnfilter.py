@@ -81,7 +81,7 @@ class TestWarnFilter(unittest.TestCase):
         warnings.warn('This is another test.')
 
     def test_warn_action(self):
-        self.assertRaises(ZConfig.ConfigurationSyntaxError,
+        self.assertRaises(ZConfig.DataConversionError,
                           self._badwarnaction)
 
     def _badwarnaction(self):
@@ -94,7 +94,7 @@ class TestWarnFilter(unittest.TestCase):
             """)  # NOQA
 
     def test_warn_category(self):
-        self.assertRaises(ZConfig.ConfigurationSyntaxError,
+        self.assertRaises(ZConfig.DataConversionError,
                           self._badwarncategory)
 
     def _badwarncategory(self):
