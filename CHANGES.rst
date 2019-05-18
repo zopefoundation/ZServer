@@ -4,7 +4,7 @@ Changelog
 4.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed configuration file path in tests
 
 
 4.0 (2019-05-08)
