@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.1 (unreleased)
-----------------
+4.0.1 (2019-05-17)
+------------------
 
 - Fixed configuration file path in tests
 
