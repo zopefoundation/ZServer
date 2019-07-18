@@ -18,7 +18,7 @@ Changelog
 4.0 (2019-05-08)
 ----------------
 
-ZChanges since 3.0:
+Changes since 3.0:
 
 - Broke out ZServer and related code from Zope core project.
 
