@@ -11,10 +11,6 @@
 #
 ##############################################################################
 
-from ZServer.Zope2.Startup.config import (  # NOQA
-    setNumberOfThreads,
-    ZSERVER_THREADS as _n,
-)
 from ZServer.PubCore import ZRendezvous
 
 _handle = None
@@ -24,6 +20,7 @@ def handle(*args, **kw):
     global _handle
 
     if _handle is None:
+        from ZServer.Zope2.Startup.config import ZSERVER_THREADS as _n
         _handle = ZRendezvous.ZRendevous(_n).handle
 
     return _handle(*args, **kw)
