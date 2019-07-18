@@ -4,6 +4,10 @@ Changelog
 4.1 (unreleased)
 ----------------
 
+- Fix: ``zserver-threads`` configuration option has been ineffective due
+  to too early import of the configuration variable
+  (`Zope#665 <https://github.com/zopefoundation/Zope/issues/665>`_).
+
 
 4.0.1 (2019-05-17)
 ------------------
@@ -14,7 +18,7 @@ Changelog
 4.0 (2019-05-08)
 ----------------
 
-Changes since 3.0:
+ZChanges since 3.0:
 
 - Broke out ZServer and related code from Zope core project.
 
