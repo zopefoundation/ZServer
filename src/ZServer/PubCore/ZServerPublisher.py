@@ -19,7 +19,7 @@ LOG = logging.getLogger('ZServerPublisher')
 class ZServerPublisher(object):
 
     def __init__(self, accept):
-        from ZPublisher.Publish import publish_module
+        from ZServer.ZPublisher.Publish import publish_module
         from ZPublisher.WSGIPublisher import publish_module as publish_wsgi
         while 1:
             try:
