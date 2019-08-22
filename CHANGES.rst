@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.1 (unreleased)
-----------------
+4.0.2 (2019-08-22)
+------------------
 
 - Fix: ``zserver-threads`` configuration option has been ineffective due
   to too early import of the configuration variable
