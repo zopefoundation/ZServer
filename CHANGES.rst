@@ -4,7 +4,8 @@ Changelog
 4.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fix: Prevent header spoofing via underscore/dash conflation
+  (`Zope#655 <https://github.com/zopefoundation/Zope/pull/655>`_)
 
 
 4.0.2 (2019-08-22)
